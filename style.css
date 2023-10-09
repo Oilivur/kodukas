@@ -1,71 +1,92 @@
-html, body {
-    background-color: bisque;
+body {
     margin: 0;
     padding: 0;
+    height: 100vh;
+    background: linear-gradient(to bottom, #ADD8E6, #000080);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight: 500;
 }
-html {
-    font-size: 62.5%;
-}
-.ui {
-    display: grid;
-    grid-template-columns: 1fr 4fr 1fr;
-}
-.sidemenu {
-    width: 200px;
-    background-color: rgba(162, 120, 52, 0.5);
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    box-shadow: 0 4px 8px;
-    text-align: center;
-    padding-bottom: 10px;
-    border: 4px solid brown;
-    border-left: none;
-}
-h2 {
-    font-size: 2.4rem;
-}
-.sidemenu-lahter {
-    display: grid;
-    gap: 2px;
-    margin: 0 5px;
-}
-.sidemenu-lahter h3 {
-    color: rgb(114, 142, 133);
-    background-color: rgb(26, 26, 172);
-    border: 2px solid rgb(184, 40, 153);
-    padding: 2px;
-    font-size: 2rem;
-}
-.sidemenu-lahter a {
-    border: 1px solid black;
-    text-decoration: none;
-    background-color: rgba(0, 255, 255, 0.752);
-    border: 1px solid gold;
-    color: black;
-    font-size: 1.5rem;
+
+.navbar {
+    border: 1px solid rgb(5, 94, 136);
+    background-color: rgb(189, 200, 248);
+    box-shadow: 0px 0px 30px rgb(60, 186, 245);
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    position: relative;
     padding: 4px;
 }
-.sidemenu-lahter a:hover {
-    background-color: rgb(183, 222, 26);
-    transition: 1s;
+
+.nav-button-container {
+    position: relative;
+    display: inline-block;
+    background-color: rgb(181, 181, 247); /* Set the background color to blue */
+    padding: 0; /* Remove padding to fill the container */
+    margin-right: 10px;
+    border: 2px dotted blue;
+    cursor: pointer;
 }
-.teine {
-    border: 2px solid rebeccapurple;
-    font-size: 1.8rem;
-    display: grid;
-    grid-template-rows: 0.5fr 3fr;
+
+.nav-button {
+    background-color: transparent;
+    cursor: pointer;
+    margin: 0px 60px 0px 60px;
+    padding: 0;
+    position: relative;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: large;
+    font-weight: 600;
+    border: none;
 }
-.head-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    text-align: center;
-    padding: 3rem;
-    border: 4px solid brown;
-    gap: 0.4rem;
+
+/* Adjust the positioning of the dropdown */
+.dropdown {
+    display: none;
+    background-color: rgb(126, 155, 249); /* Red background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    /* Adjust the dropdown width to match the button */
+    width: auto;
+    min-width: 100%; /* Expand dropdown to match button width */
+    right: 0; /* Align right edge with button's right edge */
+    transition: opacity 0.5s; /* Add opacity transition */
+    border-width: 0 1px 1px 1px; /* top right bottom left */
+    border-style: none solid solid solid; /* top right bottom left */
+    border-color: transparent blue blue blue; 
 }
-.button-1, .button-2, .button-3 {
-    border: 2px solid brown;
-    padding: 2rem;
+
+/* Adjust the dropdown display on hover */
+.nav-button-container:hover .dropdown {
+    display: block;
+    opacity: 1; /* Show dropdown with full opacity on hover */
 }
-.hekk {
-    background-image: url("pildid/giphy.gif");
+
+/* Add transition to make the dropdown fade out */
+.nav-button-container:not(:hover) .dropdown {
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events when hidden */
+    transition: opacity 0.5s;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    padding: 10px;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+a:hover {
+    background-color: #ADD8E6;
 }

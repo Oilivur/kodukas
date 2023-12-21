@@ -1,8 +1,8 @@
 let playerCount;
 let playerColor;
 let boardConfig = [];
+let assignedNumbers;
 
-const boardRadius = 5; // Number of hexagons from the center to the edge
 const hexSize = 50; // Adjust the size of hexagons as needed
 let hexBoard;
 
@@ -15,21 +15,16 @@ function startGame() {
     // Hide the main menu
     document.getElementById('main-menu').style.display = 'none';
 
+
+    // Clear existing content in the game board
+    const gameBoard = document.getElementById('game-board');
+    gameBoard.innerHTML = '';
+
     // Initialize the game with the selected options
     initializeGame();
 
-    // Use setTimeout to delay setting the grid layout
-    setTimeout(() => {
-        // Clear existing content in the game board
-        const gameBoard = document.getElementById('game-board');
-        gameBoard.innerHTML = '';
-
-        // Show the game board
-        gameBoard.style.display = 'grid';
-
-        // Generate and display the grid
-        createHexagonalGrid(boardRadius, hexSize);
-    }, 0);
+    // Generate and display the grid
+    createHexagonalGrid(hexSize, assignedNumbers);
 }
 
 function initializeGame() {
@@ -58,10 +53,14 @@ function initializeGame() {
     resourceTypes.forEach(resource => {
         resourceCounts[resource] = 0;
     });
+
+    // Array to store assigned dice roll numbers
+    assignedNumbers = [];
     
     for (let i = 0; i < numTiles; i++) {
         if (i === desertIndex) {
             boardConfig.push('desert');
+            assignedNumbers.push(1);
         } else {
             // Randomly assign other resource types
             let randomResource;
@@ -71,15 +70,49 @@ function initializeGame() {
 
             resourceCounts[randomResource]++;
             boardConfig.push(randomResource);
+
+            // Assign a dice roll number
+            const diceRoll = assignDiceRoll(assignedNumbers);
+            assignedNumbers.push(diceRoll);
+            console.log(diceRoll)
         }
     }
     
     console.log(`Starting game with ${playerCount} players. Player 1 color: ${playerColor}`);
 }
 
-function createHexagonalGrid(radius, size) {
+function assignDiceRoll(assignedNumbers) {
+    const possibleNumbers = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
+    let diceRoll;
+
+    do {
+        diceRoll = possibleNumbers[Math.floor(Math.random() * possibleNumbers.length)];
+    } while (!isValidDiceRoll(diceRoll, assignedNumbers));
+
+    return diceRoll;
+}
+
+function isValidDiceRoll(diceRoll, assignedNumbers) {
+    // Check if the diceRoll violates any of the specified guidelines
+    const lastNumber = assignedNumbers.length > 0 ? assignedNumbers[assignedNumbers.length - 1] : null;
+    const secondLastNumber = assignedNumbers.length > 1 ? assignedNumbers[assignedNumbers.length - 2] : null;
+
+    if (
+        (lastNumber === diceRoll) ||
+        (lastNumber + 1 === diceRoll && lastNumber % 2 === 0) ||
+        (lastNumber - 1 === diceRoll && lastNumber % 2 !== 0) ||
+        (secondLastNumber === 6 && lastNumber === 8 && (diceRoll === 5 || diceRoll === 9)) ||
+        (secondLastNumber === 5 && lastNumber === 9 && (diceRoll === 6 || diceRoll === 8))
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+function createHexagonalGrid(size, assignedNumbers) {
     const board = document.getElementById('game-board');
-    
+
     const rows = [3, 4, 5, 4, 3];
     let index = 0;
 
@@ -92,7 +125,8 @@ function createHexagonalGrid(radius, size) {
         board.appendChild(rowDiv);
 
         for (let col = 0; col < numHexagons; col++) {
-            const hexagon = createHexagon(0, 0, size, boardConfig[index], index);
+            const diceRoll = assignedNumbers[index]; // Get the assigned dice roll
+            const hexagon = createHexagon(0, 0, size, boardConfig[index], diceRoll, index);
             hexagon.style.margin = '3px'; // Set the margin property
             rowDiv.appendChild(hexagon);
             index++;
@@ -100,14 +134,26 @@ function createHexagonalGrid(radius, size) {
     }
 }
 
-function createHexagon(q, r, size, tileType, tileId) {
+function createHexagon(q, r, size, tileType, diceRoll, tileId) {
     const x = size * Math.sqrt(3) * (q + r / 2);
     const y = size * (3 / 2) * r;
 
     const hexagon = document.createElement('div');
     hexagon.id = `tile-${tileId}`; // Assign an ID to each tile
-    hexagon.className = 'hexagon ' + tileType; // Add the tile type as a class
+    hexagon.className = `hexagon ${tileType} ${getNumberClassName(diceRoll)}`; // Add the tile type and dice roll as classes
     hexagon.style.transform = `translate(${x}px, ${y}px)`;
-    
+
+    // Create a text element for displaying the dice roll number
+    const numberText = document.createElement('div');
+    numberText.className = 'number-text';
+    numberText.textContent = diceRoll || ''; // Display the dice roll if available
+
+    // Append the text element to the hexagon
+    hexagon.appendChild(numberText);
+
     return hexagon;
+}
+
+function getNumberClassName(diceRoll) {
+    return diceRoll ? `number-${diceRoll}` : ''; // Add a class for the dice roll number
 }

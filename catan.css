@@ -1,0 +1,45 @@
+#game-board {
+    margin-top: 200px;
+    margin-left: 500px;
+}
+
+.hexagon {
+    width: 80px;
+    height: 80px;
+    background-color: #ccc;
+    clip-path: polygon(50% 0%, 0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%);
+}
+
+.hexagon-row {
+    display: flex;
+    justify-content: center;
+}
+
+.row-1, .row-2, .row-3, .row-4, .row-5 {
+    width: 500px;
+    margin-bottom: -20px;
+}
+
+.desert {
+    background-color: sandybrown;
+}
+
+.wood {
+    background-color: green;
+}
+
+.brick {
+    background-color: rgb(173, 29, 4);
+}
+
+.wheat {
+    background-color: wheat;
+}
+
+.ore {
+    background-color: silver;
+}
+
+.sheep {
+    background-color: rgb(222, 247, 238);
+}

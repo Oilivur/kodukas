@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catan Game</title>
+    <link rel="stylesheet" href="catan.css">
+</head>
+<body>
+    <div id="main-menu">
+        <label for="player-count">Number of Players:</label>
+        <select id="player-count">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+
+        <label for="player-color">Player Color:</label>
+        <select id="player-color">
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+        </select>
+
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="game-board"></div>
+    <!-- <script src="hexi/hexi-master/bin/hexi.min.js"></script> for future use maybe -->
+    <script src="catan.js"></script>
+</body>
+</html>

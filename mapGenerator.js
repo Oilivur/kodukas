@@ -1,7 +1,11 @@
+// MapGenerator
+
 let playerCount;
 let playerColor;
 let boardConfig = [];
 let assignedNumbers;
+// Declare a variable to keep track of the current player
+let currentPlayerIndex = 0;
 
 const hexSize = 50; // Adjust the size of hexagons as needed
 let hexBoard;
@@ -9,22 +13,31 @@ let hexBoard;
 function startGame() {
     console.log("Start Game function called");
     // Get selected options
-    playerCount = document.getElementById('player-count').value;
-    playerColor = document.getElementById('player-color').value;
+    const playerCount = document.getElementById('player-count').value;
 
     // Hide the main menu
     document.getElementById('main-menu').style.display = 'none';
 
-
     // Clear existing content in the game board
     const gameBoard = document.getElementById('game-board');
     gameBoard.innerHTML = '';
+
+    // Initialize players based on user input
+    const players = initializePlayers(playerCount);
+
+    saveGameState(players, currentPlayerIndex);
 
     // Initialize the game with the selected options
     initializeGame();
 
     // Generate and display the grid
     createHexagonalGrid(hexSize, assignedNumbers);
+
+    // Display the current player's turn
+    displayCurrentPlayer(currentPlayerIndex, players);
+
+    // Start the first turn
+    currentPlayerIndex = performTurnActions(currentPlayerIndex, players);
 }
 
 function initializeGame() {
@@ -77,17 +90,40 @@ function initializeGame() {
             console.log(diceRoll)
         }
     }
-    
-    console.log(`Starting game with ${playerCount} players. Player 1 color: ${playerColor}`);
 }
 
+// Initialize the possibleNumbers array with all possible dice roll numbers
+let possibleNumbers = [3, 4, 5, 6, 8, 9, 10, 11, 2, 12, 3, 4, 5, 6, 8, 9, 10, 11];
+
 function assignDiceRoll(assignedNumbers) {
-    const possibleNumbers = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
+    // Check if there are remaining possible numbers
+    if (possibleNumbers.length === 0) {
+        console.error('No more possible numbers.');
+        return null; // or handle this case appropriately
+    }
+
+    // Shuffle the possibleNumbers array to randomize the assignment
+    for (let i = possibleNumbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [possibleNumbers[i], possibleNumbers[j]] = [possibleNumbers[j], possibleNumbers[i]];
+    }
+
     let diceRoll;
 
-    do {
-        diceRoll = possibleNumbers[Math.floor(Math.random() * possibleNumbers.length)];
-    } while (!isValidDiceRoll(diceRoll, assignedNumbers));
+    while (true) {
+        // Get the first number from the shuffled list without popping it
+        diceRoll = possibleNumbers[possibleNumbers.length - 1];
+
+        // Check if the assigned number is valid
+        if (isValidDiceRoll(diceRoll, assignedNumbers)) {
+            // If valid, pop the number from the array and exit the loop
+            possibleNumbers.pop();
+            break;
+        } else {
+            // If not valid, try again with a different number
+            possibleNumbers.unshift(possibleNumbers.pop());
+        }
+    }
 
     return diceRoll;
 }

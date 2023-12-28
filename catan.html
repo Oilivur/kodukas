@@ -16,7 +16,29 @@
         </select>
 
         <label for="player-color">Player Color:</label>
-        <select id="player-color">
+        <!-- Add a unique ID for each player color dropdown -->
+        <select id="player1-color">
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+        </select>
+
+        <select id="player2-color">
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+        </select>
+
+        <select id="player3-color">
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+        </select>
+
+        <select id="player4-color">
             <option value="red">Red</option>
             <option value="blue">Blue</option>
             <option value="green">Green</option>
@@ -25,9 +47,27 @@
 
         <button onclick="startGame()">Start Game</button>
     </div>
+    <div id="current-turn">Current Turn: <span id="current-player"></span></div>
+
+    <div id="player-stats">
+        <h2>Player Stats</h2>
+        <p><strong>Player:</strong> <span id="player-id"></span></p>
+        <p><strong>Color:</strong> <span id="player-color"></span></p>
+        <p><strong>Resources:</strong></p>
+        <ul id="resource-list">
+            <li><span id="wood-count"></span> Wood</li>
+            <li><span id="brick-count"></span> Brick</li>
+            <li><span id="ore-count"></span> Ore</li>
+            <li><span id="wheat-count"></span> Wheat</li>
+            <li><span id="sheep-count"></span> Sheep</li>
+        </ul>
+        <p><strong>Victory Points:</strong> <span id="victory-points"></span></p>
+    </div>
+
+    <button id="end-turn-btn" onclick="endTurn()">End Turn</button>
 
     <div id="game-board"></div>
-    <!-- <script src="hexi/hexi-master/bin/hexi.min.js"></script> for future use maybe -->
-    <script src="catan.js"></script>
-</body>
+    <script src="players.js"></script>
+    <script src="gameLoop.js"></script>
+    <script src="mapGenerator.js"></script>
 </html>

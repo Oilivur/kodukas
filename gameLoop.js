@@ -63,15 +63,40 @@ function updatePlayerStats(currentPlayerIndex, players) {
     document.getElementById('player-id').textContent = currentPlayer.id;
     document.getElementById('player-color').textContent = currentPlayer.color;
 
-    // Update resource counts
-    document.getElementById('wood-count').textContent = currentPlayer.resources.wood;
-    document.getElementById('brick-count').textContent = currentPlayer.resources.brick;
-    document.getElementById('ore-count').textContent = currentPlayer.resources.ore;
-    document.getElementById('wheat-count').textContent = currentPlayer.resources.wheat;
-    document.getElementById('sheep-count').textContent = currentPlayer.resources.sheep;
+    // Update resource counts and colors
+    updateResourceCount('wood-count', currentPlayer.resources.wood, 'wood');
+    updateResourceCount('brick-count', currentPlayer.resources.brick, 'brick');
+    updateResourceCount('ore-count', currentPlayer.resources.ore, 'ore');
+    updateResourceCount('wheat-count', currentPlayer.resources.wheat, 'wheat');
+    updateResourceCount('sheep-count', currentPlayer.resources.sheep, 'sheep');
 
     // Update victory points
-    document.getElementById('victory-points').textContent = calculateVictoryPoints(currentPlayer); // You need to implement calculateVictoryPoints function
+    document.getElementById('victory-points').textContent = calculateVictoryPoints(currentPlayer);
+}
+
+// Update resource count and color
+function updateResourceCount(elementId, count, resourceType) {
+    const element = document.getElementById(elementId);
+    element.textContent = count;
+    element.style.backgroundColor = getResourceColor(resourceType);
+}
+
+// Function to get resource color based on resource type
+function getResourceColor(resourceType) {
+    switch (resourceType) {
+        case 'wood':
+            return 'green';
+        case 'brick':
+            return 'rgb(173, 29, 4)';
+        case 'ore':
+            return 'silver';
+        case 'wheat':
+            return 'wheat';
+        case 'sheep':
+            return 'rgb(222, 247, 238)';
+        default:
+            return 'white'; // Default color
+    }
 }
 
 // Example function to calculate victory points (customize as needed)

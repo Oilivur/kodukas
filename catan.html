@@ -7,67 +7,7 @@
     <link rel="stylesheet" href="catan.css">
 </head>
 <body>
-    <div id="main-menu">
-        <label for="player-count">Number of Players:</label>
-        <select id="player-count">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-
-        <label for="player-color">Player Color:</label>
-        <!-- Add a unique ID for each player color dropdown -->
-        <select id="player1-color">
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="yellow">Yellow</option>
-        </select>
-
-        <select id="player2-color">
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="yellow">Yellow</option>
-        </select>
-
-        <select id="player3-color">
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="yellow">Yellow</option>
-        </select>
-
-        <select id="player4-color">
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="yellow">Yellow</option>
-        </select>
-
-        <button onclick="startGame()">Start Game</button>
-    </div>
-    <div id="current-turn">Current Turn: <span id="current-player"></span></div>
-
-    <div id="player-stats">
-        <h2>Player Stats</h2>
-        <p><strong>Player:</strong> <span id="player-id"></span></p>
-        <p><strong>Color:</strong> <span id="player-color"></span></p>
-        <p><strong>Resources:</strong></p>
-        <ul id="resource-list">
-            <li><span id="wood-count"></span> Wood</li>
-            <li><span id="brick-count"></span> Brick</li>
-            <li><span id="ore-count"></span> Ore</li>
-            <li><span id="wheat-count"></span> Wheat</li>
-            <li><span id="sheep-count"></span> Sheep</li>
-        </ul>
-        <p><strong>Victory Points:</strong> <span id="victory-points"></span></p>
-    </div>
-
-    <button id="end-turn-btn" onclick="endTurn()">End Turn</button>
-
-    <div id="game-board"></div>
-    <script src="players.js"></script>
-    <script src="gameLoop.js"></script>
-    <script src="mapGenerator.js"></script>
+    <canvas id="catanCanvas" width="1000" height="700"></canvas>
+    <script src="catan.js"></script>
+</body>
 </html>

@@ -1,92 +1,61 @@
 body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh;
-    background: linear-gradient(to bottom, #ADD8E6, #000080);
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-weight: 500;
+    background-color: #0c246c79; /* Choose your background color */
 }
 
-.navbar {
-    border: 1px solid rgb(5, 94, 136);
-    background-color: rgb(189, 200, 248);
-    box-shadow: 0px 0px 30px rgb(60, 186, 245);
-    justify-content: center;
+header {
+    background: linear-gradient(#373636, #101010); /* Gradient from lighter gray (#ddd) to dark gray (#333) */
+    color: #fff; /* Choose your text color */
+    text-align: center;
+    padding: 1em;
+    box-shadow: 0 6px 10px rgba(19, 54, 250, 0.802); /* Add a shadow to the bottom of the header */
+}
+
+nav {
+    text-align: center;
+    margin-top: 4em;
     display: flex;
-    align-items: center;
-    position: relative;
-    padding: 4px;
+    justify-content: space-around;
+}
+  
+nav .box {
+    flex: 1;
+    padding: 2rem;
+    background-color: #c5f2b554; /* Choose your box background color */
+    border-radius: 10px;
+    margin: 0 10px;
+    transition: background-color 0.3s; /* Smooth transition for background color on hover */
 }
 
-.nav-button-container {
-    position: relative;
-    display: inline-block;
-    background-color: rgb(181, 181, 247); /* Set the background color to blue */
-    padding: 0; /* Remove padding to fill the container */
-    margin-right: 10px;
-    border: 2px dotted blue;
-    cursor: pointer;
+nav .box:hover {
+    background-color: #55fb3f59; /* Change background color on hover */
 }
-
-.nav-button {
-    background-color: transparent;
-    cursor: pointer;
-    margin: 0px 60px 0px 60px;
-    padding: 0;
-    position: relative;
-    font-family: 'Times New Roman', Times, serif;
-    font-size: large;
-    font-weight: 600;
-    border: none;
-}
-
-/* Adjust the positioning of the dropdown */
-.dropdown {
-    display: none;
-    background-color: rgb(126, 155, 249); /* Red background */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    /* Adjust the dropdown width to match the button */
-    width: auto;
-    min-width: 100%; /* Expand dropdown to match button width */
-    right: 0; /* Align right edge with button's right edge */
-    transition: opacity 0.5s; /* Add opacity transition */
-    border-width: 0 1px 1px 1px; /* top right bottom left */
-    border-style: none solid solid solid; /* top right bottom left */
-    border-color: transparent blue blue blue; 
-}
-
-/* Adjust the dropdown display on hover */
-.nav-button-container:hover .dropdown {
+  
+nav a {
     display: block;
-    opacity: 1; /* Show dropdown with full opacity on hover */
-}
-
-/* Add transition to make the dropdown fade out */
-.nav-button-container:not(:hover) .dropdown {
-    opacity: 0;
-    pointer-events: none; /* Disable pointer events when hidden */
-    transition: opacity 0.5s;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-li {
-    padding: 10px;
-}
-
-a {
     text-decoration: none;
-    color: black;
+    color: #41725d; /* Choose your link color */
+    margin-top: 16px;
+    padding: 15px 20px; /* Adjusted padding for a taller and narrower appearance */
+    border: 2px solid #555; /* Border color for the button-like appearance */
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for background color and text color on hover */
 }
 
-a:hover {
-    background-color: #ADD8E6;
+nav a:hover {
+    background-color: #555; /* Change background color on hover */
+    color: #fff; /* Change text color on hover */
+}
+  
+@media only screen and (max-width: 600px) {
+    nav {
+      flex-direction: column; /* Stack boxes vertically on smaller screens */
+    }
+    
+    nav .box {
+      margin: 0;
+      margin-bottom: 10px;
+    }
 }

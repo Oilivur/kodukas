@@ -1,6 +1,7 @@
 const DATA_URL = "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
+const ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=950&dates=20260611-20260719";
 const TALLINN_TIME_ZONE = "Europe/Tallinn";
-const AUTO_REFRESH_MS = 10 * 60 * 1000;
+const AUTO_REFRESH_MS = 2 * 60 * 1000;
 
 const TEAM_FLAGS = {
     "Algeria": "dz",
@@ -136,9 +137,21 @@ async function loadWorldCupData(showLoading) {
 
         const data = await response.json();
 
-        allMatches = data.matches
+        const matches = data.matches
             .map(normalizeMatch)
             .sort((a, b) => a.kickoffDate - b.kickoffDate);
+
+        let espnScoresLoaded = false;
+
+        try {
+            const espnMatches = await loadEspnScoreboard();
+            mergeEspnScores(matches, espnMatches);
+            espnScoresLoaded = true;
+        } catch (espnError) {
+            console.warn("ESPN score overlay failed:", espnError);
+        }
+
+        allMatches = matches;
 
         populateStageFilter();
         renderPage();
@@ -146,12 +159,202 @@ async function loadWorldCupData(showLoading) {
         document.getElementById("worldCupUpdated").textContent =
             `Updated: ${formatTallinnDateTime(new Date())}`;
 
-        statusElement.textContent = `Loaded ${allMatches.length} matches from ${data.name}.`;
+        statusElement.textContent = espnScoresLoaded
+            ? `Loaded ${allMatches.length} matches. Fast final scores checked from ESPN.`
+            : `Loaded ${allMatches.length} matches from ${data.name}. ESPN scores unavailable right now.`;
     } catch (error) {
         console.error(error);
         statusElement.textContent =
             "Could not load World Cup data. The source may be temporarily unavailable.";
     }
+}
+
+async function loadEspnScoreboard() {
+    const response = await fetch(`${ESPN_SCOREBOARD_URL}&cacheBust=${Date.now()}`, {
+        cache: "no-store"
+    });
+
+    if (!response.ok) {
+        throw new Error(`ESPN HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return (data.events || [])
+        .map(normalizeEspnMatch)
+        .filter(match => match !== null);
+}
+
+function normalizeEspnMatch(event) {
+    const competition = event.competitions && event.competitions[0];
+
+    if (!competition || !competition.competitors || competition.competitors.length < 2) {
+        return null;
+    }
+
+    const home = competition.competitors.find(team => team.homeAway === "home") || competition.competitors[0];
+    const away = competition.competitors.find(team => team.homeAway === "away") || competition.competitors[1];
+
+    const homeName = getEspnTeamName(home);
+    const awayName = getEspnTeamName(away);
+
+    if (!homeName || !awayName) {
+        return null;
+    }
+
+    const homeScore = Number(home.score);
+    const awayScore = Number(away.score);
+
+    const completed = Boolean(event.status && event.status.type && event.status.type.completed);
+    const hasScore = !Number.isNaN(homeScore) && !Number.isNaN(awayScore);
+
+    return {
+        id: event.id,
+        team1: cleanTeamName(homeName),
+        team2: cleanTeamName(awayName),
+        kickoffDate: new Date(event.date),
+        completed,
+        hasScore,
+        score: hasScore
+            ? {
+                home: homeScore,
+                away: awayScore
+            }
+            : null
+    };
+}
+
+function getEspnTeamName(competitor) {
+    if (!competitor || !competitor.team) {
+        return "";
+    }
+
+    return (
+        competitor.team.displayName ||
+        competitor.team.shortDisplayName ||
+        competitor.team.name ||
+        ""
+    );
+}
+
+function mergeEspnScores(matches, espnMatches) {
+    const usedEspnIndexes = new Set();
+
+    matches.forEach(match => {
+        const espnIndex = findMatchingEspnMatch(match, espnMatches, usedEspnIndexes);
+
+        if (espnIndex === -1) {
+            return;
+        }
+
+        const espnMatch = espnMatches[espnIndex];
+
+        if (!espnMatch.completed || !espnMatch.hasScore) {
+            return;
+        }
+
+        usedEspnIndexes.add(espnIndex);
+
+        const sameOrder =
+            sameTeam(match.team1, espnMatch.team1) &&
+            sameTeam(match.team2, espnMatch.team2);
+
+        const reversedOrder =
+            sameTeam(match.team1, espnMatch.team2) &&
+            sameTeam(match.team2, espnMatch.team1);
+
+        if (sameOrder) {
+            match.score = {
+                home: espnMatch.score.home,
+                away: espnMatch.score.away
+            };
+        } else if (reversedOrder) {
+            match.score = {
+                home: espnMatch.score.away,
+                away: espnMatch.score.home
+            };
+        } else {
+            return;
+        }
+
+        match.status = "FINISHED";
+        match.scoreSource = "ESPN";
+    });
+}
+
+function findMatchingEspnMatch(match, espnMatches, usedEspnIndexes) {
+    let bestIndex = -1;
+    let bestTimeDifference = Infinity;
+
+    espnMatches.forEach((espnMatch, index) => {
+        if (usedEspnIndexes.has(index)) {
+            return;
+        }
+
+        if (!sameTeamPair(match, espnMatch)) {
+            return;
+        }
+
+        const timeDifference = Math.abs(match.kickoffDate.getTime() - espnMatch.kickoffDate.getTime());
+
+        if (timeDifference < bestTimeDifference && timeDifference <= 36 * 60 * 60 * 1000) {
+            bestIndex = index;
+            bestTimeDifference = timeDifference;
+        }
+    });
+
+    return bestIndex;
+}
+
+function sameTeamPair(match, espnMatch) {
+    const sameOrder =
+        sameTeam(match.team1, espnMatch.team1) &&
+        sameTeam(match.team2, espnMatch.team2);
+
+    const reversedOrder =
+        sameTeam(match.team1, espnMatch.team2) &&
+        sameTeam(match.team2, espnMatch.team1);
+
+    return sameOrder || reversedOrder;
+}
+
+function sameTeam(a, b) {
+    return normalizeTeamKey(a) === normalizeTeamKey(b);
+}
+
+function normalizeTeamKey(teamName) {
+    let value = String(teamName ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+
+    const aliases = {
+        "usa": "united states",
+        "united states": "united states",
+
+        "bosnia herzegovina": "bosnia and herzegovina",
+        "bosnia and herzegovina": "bosnia and herzegovina",
+
+        "czech republic": "czechia",
+        "czechia": "czechia",
+
+        "korea republic": "republic of korea",
+        "south korea": "republic of korea",
+        "republic of korea": "republic of korea",
+
+        "dr congo": "dr congo",
+        "congo dr": "dr congo",
+        "cd congo": "dr congo",
+        "democratic republic of the congo": "dr congo",
+
+        "curacao": "curacao",
+        "curacao national football team": "curacao"
+    };
+
+    return aliases[value] || value;
 }
 
 function normalizeMatch(match) {

@@ -552,36 +552,96 @@ function populateStageFilter() {
 }
 
 function renderPage() {
-    const filteredMatches = getFilteredMatches();
+    const visibleData = getVisibleData();
 
     renderHeroStats();
-    renderStandings(filteredMatches);
-    renderMatches(filteredMatches);
+    renderStandings(visibleData.standingMatches);
+    renderMatches(visibleData.matches);
 }
 
-function getFilteredMatches() {
-    const search = document.getElementById("teamSearch").value.trim().toLowerCase();
+function getVisibleData() {
+    const search = document.getElementById("teamSearch").value.trim();
     const selectedStage = document.getElementById("stageFilter").value;
 
-    return allMatches.filter(match => {
-        if (selectedStage && match.stageName !== selectedStage) {
-            return false;
-        }
-
-        if (!search) {
-            return true;
-        }
-
-        const searchableText = [
-            match.team1,
-            match.team2,
-            match.stageName,
-            match.round,
-            match.ground
-        ].join(" ").toLowerCase();
-
-        return searchableText.includes(search);
+    const stageMatches = allMatches.filter(match => {
+        return !selectedStage || match.stageName === selectedStage;
     });
+
+    if (!search) {
+        return {
+            matches: stageMatches,
+            standingMatches: stageMatches
+        };
+    }
+
+    const visibleGroups = new Set();
+    const visibleKnockoutMatchIds = new Set();
+
+    stageMatches.forEach(match => {
+        const foundTeam =
+            teamMatchesSearch(match.team1, search) ||
+            teamMatchesSearch(match.team2, search);
+
+        if (!foundTeam) {
+            return;
+        }
+
+        if (match.isGroupStage) {
+            visibleGroups.add(match.group);
+        } else {
+            visibleKnockoutMatchIds.add(match.id);
+        }
+    });
+
+    const visibleGroupMatches = stageMatches.filter(match => {
+        return match.isGroupStage && visibleGroups.has(match.group);
+    });
+
+    const visibleKnockoutMatches = stageMatches.filter(match => {
+        return !match.isGroupStage && visibleKnockoutMatchIds.has(match.id);
+    });
+
+    return {
+        matches: [
+            ...visibleGroupMatches,
+            ...visibleKnockoutMatches
+        ],
+        standingMatches: visibleGroupMatches
+    };
+}
+
+function teamMatchesSearch(teamName, search) {
+    const query = normalizeSearchText(search);
+
+    if (!query) {
+        return true;
+    }
+
+    const teamCode = typeof getTeamCode === "function"
+        ? getTeamCode(teamName)
+        : "";
+
+    const aliasName = typeof normalizeTeamKey === "function"
+        ? normalizeTeamKey(teamName)
+        : "";
+
+    const searchableTeamText = normalizeSearchText([
+        teamName,
+        teamCode,
+        aliasName
+    ].join(" "));
+
+    return searchableTeamText.includes(query);
+}
+
+function normalizeSearchText(value) {
+    return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
 }
 
 function renderHeroStats() {

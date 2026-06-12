@@ -326,12 +326,31 @@ main {
     background: #b8ffd1;
 }
 
+.standing-team-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
 .team-with-flag {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
     vertical-align: middle;
     white-space: nowrap;
+    min-width: 0;
+}
+
+.team-name-full,
+.team-name-code {
+    min-width: 0;
+}
+
+.team-name-code {
+    display: none;
+    font-weight: 800;
+    letter-spacing: 0.03em;
 }
 
 .team-flag {
@@ -515,7 +534,7 @@ main {
 
     .standings-grid,
     .matches-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .match-main {
@@ -541,5 +560,56 @@ main {
 
     .team-vs {
         margin-left: 0;
+    }
+
+    .team-name-full {
+        display: none;
+    }
+
+    .team-name-code {
+        display: inline;
+    }
+
+    .standing-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .standing-table th,
+    .standing-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.82rem;
+        text-align: center;
+    }
+
+    .standing-table th:first-child,
+    .standing-table td:first-child {
+        width: 40%;
+        text-align: left;
+    }
+
+    .standing-table th:not(:first-child),
+    .standing-table td:not(:first-child) {
+        width: 10%;
+    }
+
+    .rank-pill {
+        width: 1.35rem;
+        height: 1.35rem;
+        margin-right: 0;
+        font-size: 0.72rem;
+    }
+
+    .team-flag {
+        width: 22px;
+        height: 15px;
+    }
+
+    .card-header h3 {
+        font-size: 1.15rem;
+    }
+
+    .card-header span {
+        font-size: 0.82rem;
     }
 }

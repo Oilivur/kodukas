@@ -93,6 +93,96 @@ const TEAM_FLAGS = {
     "Wales": "gb-wls"
 };
 
+const TEAM_CODES = {
+    "Algeria": "ALG",
+    "Angola": "ANG",
+    "Argentina": "ARG",
+    "Australia": "AUS",
+    "Austria": "AUT",
+    "Belgium": "BEL",
+    "Bolivia": "BOL",
+    "Bosnia & Herzegovina": "BIH",
+    "Bosnia and Herzegovina": "BIH",
+    "Brazil": "BRA",
+    "Burkina Faso": "BFA",
+    "Cameroon": "CMR",
+    "Canada": "CAN",
+    "Cape Verde": "CPV",
+    "Chile": "CHI",
+    "China": "CHN",
+    "Colombia": "COL",
+    "Costa Rica": "CRC",
+    "Croatia": "CRO",
+    "Curaçao": "CUW",
+    "Curacao": "CUW",
+    "Czech Republic": "CZE",
+    "Czechia": "CZE",
+    "Democratic Republic of the Congo": "COD",
+    "DR Congo": "COD",
+    "Congo DR": "COD",
+    "CD Congo": "COD",
+    "Congo-Kinshasa": "COD",
+    "Denmark": "DEN",
+    "Ecuador": "ECU",
+    "Egypt": "EGY",
+    "England": "ENG",
+    "France": "FRA",
+    "Germany": "GER",
+    "Ghana": "GHA",
+    "Greece": "GRE",
+    "Haiti": "HAI",
+    "Honduras": "HON",
+    "Hungary": "HUN",
+    "Iran": "IRN",
+    "Iraq": "IRQ",
+    "Ireland": "IRL",
+    "Italy": "ITA",
+    "Ivory Coast": "CIV",
+    "Côte d'Ivoire": "CIV",
+    "Jamaica": "JAM",
+    "Japan": "JPN",
+    "Jordan": "JOR",
+    "Korea Republic": "KOR",
+    "Republic of Korea": "KOR",
+    "South Korea": "KOR",
+    "Mali": "MLI",
+    "Mexico": "MEX",
+    "Morocco": "MAR",
+    "Netherlands": "NED",
+    "New Zealand": "NZL",
+    "Nigeria": "NGA",
+    "North Macedonia": "MKD",
+    "Norway": "NOR",
+    "Panama": "PAN",
+    "Paraguay": "PAR",
+    "Peru": "PER",
+    "Poland": "POL",
+    "Portugal": "POR",
+    "Qatar": "QAT",
+    "Romania": "ROU",
+    "Saudi Arabia": "KSA",
+    "Scotland": "SCO",
+    "Senegal": "SEN",
+    "Serbia": "SRB",
+    "Slovakia": "SVK",
+    "Slovenia": "SVN",
+    "South Africa": "RSA",
+    "Spain": "ESP",
+    "Sweden": "SWE",
+    "Switzerland": "SUI",
+    "Tunisia": "TUN",
+    "Turkey": "TUR",
+    "Türkiye": "TUR",
+    "Ukraine": "UKR",
+    "United Arab Emirates": "UAE",
+    "United States": "USA",
+    "USA": "USA",
+    "Uruguay": "URU",
+    "Uzbekistan": "UZB",
+    "Venezuela": "VEN",
+    "Wales": "WAL"
+};
+
 let allMatches = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -589,10 +679,12 @@ function renderStandings(matches) {
                         ${teams.map((team, index) => `
                             <tr>
                                 <td class="team-name">
-                                    <span class="rank-pill ${index < 2 ? "qualifies" : ""}">
-                                        ${index + 1}
+                                    <span class="standing-team-wrap">
+                                        <span class="rank-pill ${index < 2 ? "qualifies" : ""}">
+                                            ${index + 1}
+                                        </span>
+                                        ${renderTeamLabel(team.name)}
                                     </span>
-                                    ${renderTeamLabel(team.name)}
                                 </td>
                                 <td>${team.played}</td>
                                 <td>${team.won}</td>
@@ -798,9 +890,15 @@ function getEstimatedMinute(kickoffDate) {
 function renderTeamLabel(teamName) {
     const cleanName = escapeHtml(teamName);
     const flagCode = getFlagCode(teamName);
+    const teamCode = escapeHtml(getTeamCode(teamName));
+
+    const nameHtml = `
+        <span class="team-name-full">${cleanName}</span>
+        <span class="team-name-code" title="${cleanName}">${teamCode}</span>
+    `;
 
     if (!flagCode) {
-        return `<span class="team-with-flag">${cleanName}</span>`;
+        return `<span class="team-with-flag">${nameHtml}</span>`;
     }
 
     return `
@@ -811,9 +909,20 @@ function renderTeamLabel(teamName) {
                 alt=""
                 loading="lazy"
             >
-            <span>${cleanName}</span>
+            ${nameHtml}
         </span>
     `;
+}
+
+function getTeamCode(teamName) {
+    if (TEAM_CODES[teamName]) {
+        return TEAM_CODES[teamName];
+    }
+
+    return String(teamName ?? "")
+        .replace(/[^a-zA-Z]/g, "")
+        .slice(0, 3)
+        .toUpperCase();
 }
 
 function getFlagCode(teamName) {

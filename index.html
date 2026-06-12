@@ -39,21 +39,18 @@
 <main>
     <section class="world-cup-section">
         <div class="world-cup-header">
-            <div>
+            <div class="world-cup-title">
                 <p class="eyebrow">FIFA World Cup 2026</p>
                 <h2>World Cup games</h2>
-                <p>
-                    All games are shown in Tallinn time. Finished scores and standings update when the data source updates.
-                </p>
             </div>
 
             <div class="world-cup-actions">
                 <button id="refreshWorldCup" type="button">Refresh</button>
                 <span id="worldCupUpdated">Loading...</span>
             </div>
-        </div>
 
-        <div id="worldCupSummary" class="world-cup-summary"></div>
+            <div id="worldCupHeroStats" class="world-cup-hero-stats"></div>
+        </div>
 
         <div class="world-cup-controls">
             <input id="teamSearch" type="text" placeholder="Search team, city or stage...">

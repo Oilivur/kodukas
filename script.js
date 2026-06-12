@@ -2,6 +2,96 @@ const DATA_URL = "https://raw.githubusercontent.com/openfootball/worldcup.json/m
 const TALLINN_TIME_ZONE = "Europe/Tallinn";
 const AUTO_REFRESH_MS = 10 * 60 * 1000;
 
+const TEAM_FLAGS = {
+    "Algeria": "dz",
+    "Angola": "ao",
+    "Argentina": "ar",
+    "Australia": "au",
+    "Austria": "at",
+    "Belgium": "be",
+    "Bolivia": "bo",
+    "Bosnia & Herzegovina": "ba",
+    "Bosnia and Herzegovina": "ba",
+    "Brazil": "br",
+    "Burkina Faso": "bf",
+    "Cameroon": "cm",
+    "Canada": "ca",
+    "Cape Verde": "cv",
+    "Chile": "cl",
+    "China": "cn",
+    "Colombia": "co",
+    "Costa Rica": "cr",
+    "Croatia": "hr",
+    "Curaçao": "cw",
+    "Curacao": "cw",
+    "Czech Republic": "cz",
+    "Czechia": "cz",
+    "Democratic Republic of the Congo": "cd",
+    "DR Congo": "cd",
+    "Congo DR": "cd",
+    "CD Congo": "cd",
+    "Congo-Kinshasa": "cd",
+    "Denmark": "dk",
+    "Ecuador": "ec",
+    "Egypt": "eg",
+    "England": "gb-eng",
+    "France": "fr",
+    "Germany": "de",
+    "Ghana": "gh",
+    "Greece": "gr",
+    "Haiti": "ht",
+    "Honduras": "hn",
+    "Hungary": "hu",
+    "Iran": "ir",
+    "Iraq": "iq",
+    "Ireland": "ie",
+    "Italy": "it",
+    "Ivory Coast": "ci",
+    "Côte d'Ivoire": "ci",
+    "Jamaica": "jm",
+    "Japan": "jp",
+    "Jordan": "jo",
+    "Korea Republic": "kr",
+    "Republic of Korea": "kr",
+    "South Korea": "kr",
+    "Mali": "ml",
+    "Mexico": "mx",
+    "Morocco": "ma",
+    "Netherlands": "nl",
+    "New Zealand": "nz",
+    "Nigeria": "ng",
+    "North Macedonia": "mk",
+    "Norway": "no",
+    "Panama": "pa",
+    "Paraguay": "py",
+    "Peru": "pe",
+    "Poland": "pl",
+    "Portugal": "pt",
+    "Qatar": "qa",
+    "Romania": "ro",
+    "Saudi Arabia": "sa",
+    "Scotland": "gb-sct",
+    "Senegal": "sn",
+    "Serbia": "rs",
+    "Slovakia": "sk",
+    "Slovenia": "si",
+    "South Africa": "za",
+    "Spain": "es",
+    "Sweden": "se",
+    "Switzerland": "ch",
+    "Tunisia": "tn",
+    "Turkey": "tr",
+    "Türkiye": "tr",
+    "Ukraine": "ua",
+    "United Arab Emirates": "ae",
+    "United States": "us",
+    "USA": "us",
+    "Uruguay": "uy",
+    "Uzbekistan": "uz",
+    "Venezuela": "ve",
+    "Wales": "gb-wls"
+};
+
 let allMatches = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -179,7 +269,7 @@ function populateStageFilter() {
 function renderPage() {
     const filteredMatches = getFilteredMatches();
 
-    renderSummary(filteredMatches);
+    renderHeroStats();
     renderStandings(filteredMatches);
     renderMatches(filteredMatches);
 }
@@ -209,36 +299,51 @@ function getFilteredMatches() {
     });
 }
 
-function renderSummary(matches) {
-    const container = document.getElementById("worldCupSummary");
+function renderHeroStats() {
+    const container = document.getElementById("worldCupHeroStats");
 
-    const total = matches.length;
-    const finished = matches.filter(match => match.status === "FINISHED").length;
-    const live = matches.filter(match => match.status === "LIVE_ESTIMATE").length;
+    const finished = allMatches.filter(match => match.status === "FINISHED").length;
+    const gamesLeft = allMatches.filter(match => match.status !== "FINISHED").length;
 
-    const nextMatch = matches.find(match => {
+    const nextMatch = allMatches.find(match => {
         return !match.score && match.kickoffDate > new Date();
     });
 
     container.innerHTML = `
-        <div class="summary-card">
-            <span>Total games shown</span>
-            <strong>${total}</strong>
-        </div>
-
-        <div class="summary-card">
+        <div class="hero-stat">
             <span>Finished</span>
             <strong>${finished}</strong>
         </div>
 
-        <div class="summary-card">
-            <span>Live window</span>
-            <strong>${live}</strong>
+        <div class="hero-stat">
+            <span>Games left</span>
+            <strong>${gamesLeft}</strong>
         </div>
 
-        <div class="summary-card">
+        <div class="hero-stat next-game">
             <span>Next game</span>
-            <strong>${nextMatch ? `${escapeHtml(nextMatch.team1)} vs ${escapeHtml(nextMatch.team2)}` : "None"}</strong>
+            ${
+                nextMatch
+                    ? `
+                        <div class="next-game-content">
+                            <div class="next-game-teams">
+                                ${renderTeamLabel(nextMatch.team1)}
+                                <span class="team-vs">vs</span>
+                                ${renderTeamLabel(nextMatch.team2)}
+                            </div>
+                            <em class="hero-stat-time">
+                                ${nextMatch.tallinnDateLabel}, ${nextMatch.tallinnTimeLabel} Tallinn time
+                            </em>
+                        </div>
+                    `
+                    : `
+                        <div class="next-game-content">
+                            <div class="next-game-teams">
+                                <span>No upcoming game</span>
+                            </div>
+                        </div>
+                    `
+            }
         </div>
     `;
 }
@@ -284,7 +389,7 @@ function renderStandings(matches) {
                                     <span class="rank-pill ${index < 2 ? "qualifies" : ""}">
                                         ${index + 1}
                                     </span>
-                                    ${escapeHtml(team.name)}
+                                    ${renderTeamLabel(team.name)}
                                 </td>
                                 <td>${team.played}</td>
                                 <td>${team.won}</td>
@@ -440,9 +545,9 @@ function renderMatch(match) {
             </div>
 
             <div class="match-main">
-                <strong>${escapeHtml(match.team1)}</strong>
+                <strong>${renderTeamLabel(match.team1)}</strong>
                 <span class="score-box">${escapeHtml(scoreText)}</span>
-                <strong>${escapeHtml(match.team2)}</strong>
+                <strong>${renderTeamLabel(match.team2)}</strong>
             </div>
 
             <div class="match-meta">
@@ -487,6 +592,31 @@ function getEstimatedMinute(kickoffDate) {
     return "90+'";
 }
 
+function renderTeamLabel(teamName) {
+    const cleanName = escapeHtml(teamName);
+    const flagCode = getFlagCode(teamName);
+
+    if (!flagCode) {
+        return `<span class="team-with-flag">${cleanName}</span>`;
+    }
+
+    return `
+        <span class="team-with-flag">
+            <img
+                class="team-flag"
+                src="https://flagcdn.com/w40/${flagCode}.png"
+                alt=""
+                loading="lazy"
+            >
+            <span>${cleanName}</span>
+        </span>
+    `;
+}
+
+function getFlagCode(teamName) {
+    return TEAM_FLAGS[teamName] || null;
+}
+
 function groupBy(items, keyFunction) {
     return items.reduce((groups, item) => {
         const key = keyFunction(item);
@@ -515,8 +645,15 @@ function getStageOrder(stageName) {
         "Round of 32": 100,
         "Round of 16": 110,
         "Quarter-final": 120,
+        "Quarter-final 1": 121,
+        "Quarter-final 2": 122,
+        "Quarter-final 3": 123,
+        "Quarter-final 4": 124,
         "Semi-final": 130,
+        "Semi-final 1": 131,
+        "Semi-final 2": 132,
         "Match for third place": 140,
+        "Third place": 140,
         "Final": 150
     };
 

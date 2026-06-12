@@ -4,37 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kodukas</title>
-    <link rel="stylesheet" href="style.css"> <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header>
+<header>
     <h1>Kodukas</h1>
-  </header>
+</header>
 
-  <nav>
+<nav>
     <div class="box">
         <h3>Kraam</h3>
-      <a href="https://www.youtube.com" target="_blank">YouTube</a>
-      <a href="https://www.lhv.ee" target="_blank">LHV</a>
-      <a href="https://ww-fmovies.com" target="_blank">Filmid</a>
-      <a href="https://en.fmoviesz-to.com" target="_blank">Filmid II</a>
+        <a href="https://www.youtube.com" target="_blank">YouTube</a>
+        <a href="https://www.lhv.ee" target="_blank">LHV</a>
+        <a href="https://ww-fmovies.com" target="_blank">Filmid</a>
+        <a href="https://en.fmoviesz-to.com" target="_blank">Filmid II</a>
     </div>
 
     <div class="box">
         <h3>Saated</h3>
-      <a href="https://pohjaeesti.treraadio.ee/kava/7/raagime-asjast" target="_blank">Tre</a>
-      <a href="https://vikerraadio.err.ee/arhiiv/samost_ja_sildam" target="_blank">Viker</a>
-      <a href="https://kuku.pleier.ee/podcast/keskpaevatund" target="_blank">Kuku</a>
+        <a href="https://pohjaeesti.treraadio.ee/kava/7/raagime-asjast" target="_blank">Tre</a>
+        <a href="https://vikerraadio.err.ee/arhiiv/samost_ja_sildam" target="_blank">Viker</a>
+        <a href="https://kuku.pleier.ee/podcast/keskpaevatund" target="_blank">Kuku</a>
     </div>
 
     <div class="box">
         <h3>Discgolf</h3>
-      <a href="https://discgolf.ee/" target="_blank">discgolf.ee</a>
-      <a href="https://thuledg.ee/" target="_blank">thuldedg.ee</a>
-      <a href="https://discgolfar.ee/" target="_blank">discgolfar.ee</a>
+        <a href="https://discgolf.ee/" target="_blank">discgolf.ee</a>
+        <a href="https://thuledg.ee/" target="_blank">thuledg.ee</a>
+        <a href="https://discgolfar.ee/" target="_blank">discgolfar.ee</a>
     </div>
-  </nav>
+</nav>
 
+<main>
+    <section class="world-cup-section">
+        <div class="world-cup-header">
+            <div>
+                <p class="eyebrow">FIFA World Cup 2026</p>
+                <h2>World Cup games</h2>
+                <p>
+                    All games are shown in Tallinn time. Finished scores and standings update when the data source updates.
+                </p>
+            </div>
+
+            <div class="world-cup-actions">
+                <button id="refreshWorldCup" type="button">Refresh</button>
+                <span id="worldCupUpdated">Loading...</span>
+            </div>
+        </div>
+
+        <div id="worldCupSummary" class="world-cup-summary"></div>
+
+        <div class="world-cup-controls">
+            <input id="teamSearch" type="text" placeholder="Search team, city or stage...">
+
+            <select id="stageFilter">
+                <option value="">All groups and stages</option>
+            </select>
+        </div>
+
+        <p id="worldCupStatus" class="world-cup-status">Loading World Cup data...</p>
+
+        <section>
+            <h2 class="section-title">Standings</h2>
+            <div id="standingsGrid" class="standings-grid"></div>
+        </section>
+
+        <section>
+            <h2 class="section-title">Games</h2>
+            <div id="matchesGrid" class="matches-grid"></div>
+        </section>
+    </section>
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>

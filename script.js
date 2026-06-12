@@ -1,7 +1,7 @@
 const DATA_URL = "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json";
 const ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=950&dates=20260611-20260719";
 const TALLINN_TIME_ZONE = "Europe/Tallinn";
-const AUTO_REFRESH_MS = 2 * 60 * 1000;
+const AUTO_REFRESH_MS = 5 * 60 * 1000;
 
 const TEAM_FLAGS = {
     "Algeria": "dz",
@@ -212,10 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadWorldCupData(showLoading) {
     const statusElement = document.getElementById("worldCupStatus");
 
-    if (showLoading) {
-        statusElement.textContent = "Loading World Cup data...";
-    }
-
     try {
         const response = await fetch(`${DATA_URL}?cacheBust=${Date.now()}`, {
             cache: "no-store"
@@ -238,7 +234,7 @@ async function loadWorldCupData(showLoading) {
             mergeEspnScores(matches, espnMatches);
             espnScoresLoaded = true;
         } catch (espnError) {
-            console.warn("ESPN score overlay failed:", espnError);
+            console.warn("ESPN skooride feil:", espnError);
         }
 
         allMatches = matches;
@@ -247,15 +243,11 @@ async function loadWorldCupData(showLoading) {
         renderPage();
 
         document.getElementById("worldCupUpdated").textContent =
-            `Updated: ${formatTallinnDateTime(new Date())}`;
-
-        statusElement.textContent = espnScoresLoaded
-            ? `Loaded ${allMatches.length} matches. Fast final scores checked from ESPN.`
-            : `Loaded ${allMatches.length} matches from ${data.name}. ESPN scores unavailable right now.`;
+            `Uuendatud: ${formatTallinnDateTime(new Date())}`;
     } catch (error) {
         console.error(error);
         statusElement.textContent =
-            "Could not load World Cup data. The source may be temporarily unavailable.";
+            "Ei saanud infi kätte...";
     }
 }
 
@@ -547,7 +539,7 @@ function populateStageFilter() {
     const stages = [...new Set(allMatches.map(match => match.stageName))]
         .sort(compareStages);
 
-    select.innerHTML = `<option value="">All groups and stages</option>`;
+    select.innerHTML = `<option value="">Kogu värk</option>`;
 
     stages.forEach(stage => {
         const option = document.createElement("option");
@@ -604,17 +596,17 @@ function renderHeroStats() {
 
     container.innerHTML = `
         <div class="hero-stat">
-            <span>Finished</span>
+            <span>Lõppenud</span>
             <strong>${finished}</strong>
         </div>
 
         <div class="hero-stat">
-            <span>Games left</span>
+            <span>Mänge jäänud</span>
             <strong>${gamesLeft}</strong>
         </div>
 
         <div class="hero-stat next-game">
-            <span>Next game</span>
+            <span>Järgmine mäng</span>
             ${
                 nextMatch
                     ? `
@@ -625,14 +617,14 @@ function renderHeroStats() {
                                 ${renderTeamLabel(nextMatch.team2)}
                             </div>
                             <em class="hero-stat-time">
-                                ${nextMatch.tallinnDateLabel}, ${nextMatch.tallinnTimeLabel} Tallinn time
+                                ${nextMatch.tallinnDateLabel}, ${nextMatch.tallinnTimeLabel} Eesti aeg
                             </em>
                         </div>
                     `
                     : `
                         <div class="next-game-content">
                             <div class="next-game-teams">
-                                <span>No upcoming game</span>
+                                <span>Pole tulevat mängu</span>
                             </div>
                         </div>
                     `
@@ -648,7 +640,7 @@ function renderStandings(matches) {
     const groupNames = Object.keys(standings).sort(compareStages);
 
     if (groupNames.length === 0) {
-        container.innerHTML = `<p class="empty-state">No group-stage matches found.</p>`;
+        container.innerHTML = `<p class="empty-state">Ei leidnud mänge.</p>`;
         return;
     }
 
@@ -659,7 +651,7 @@ function renderStandings(matches) {
             <article class="standing-card">
                 <div class="card-header">
                     <h3>${escapeHtml(groupName)}</h3>
-                    <span>${teams.length} teams</span>
+                    <span>${teams.length} Meeskonda</span>
                 </div>
 
                 <table class="standing-table">
@@ -792,7 +784,7 @@ function renderMatches(matches) {
     const container = document.getElementById("matchesGrid");
 
     if (matches.length === 0) {
-        container.innerHTML = `<p class="empty-state">No matches match the current filter.</p>`;
+        container.innerHTML = `<p class="empty-state">Sellistele filtritele ei vasta ükski mäng.</p>`;
         return;
     }
 
@@ -811,7 +803,7 @@ function renderMatches(matches) {
             <article class="${cardClass}">
                 <div class="card-header">
                     <h3>${escapeHtml(stageName)}</h3>
-                    <span>${finishedCount}/${stageMatches.length} finished</span>
+                    <span>${finishedCount}/${stageMatches.length} lõppenud</span>
                 </div>
 
                 ${dateNames.map(dateName => `
@@ -846,7 +838,7 @@ function renderMatch(match) {
             </div>
 
             <div class="match-meta">
-                <span>${escapeHtml(match.tallinnTimeLabel)} Tallinn time</span>
+                <span>${escapeHtml(match.tallinnTimeLabel)} Eesti aeg</span>
                 <span>${escapeHtml(match.ground)}</span>
             </div>
         </div>
@@ -863,10 +855,10 @@ function getStatusBadge(match) {
     }
 
     if (match.status === "MISSING_RESULT") {
-        return `<span class="status-badge status-missing">Result pending</span>`;
+        return `<span class="status-badge status-missing">Tulemuse ootel</span>`;
     }
 
-    return `<span class="status-badge status-scheduled">Scheduled</span>`;
+    return `<span class="status-badge status-scheduled">Tulemas</span>`;
 }
 
 function getEstimatedMinute(kickoffDate) {

@@ -961,3 +961,76 @@ main {
         width: max-content;
     }
 }
+
+/* Final / third-place visual highlights only.
+   Does not override connector lines. */
+
+.bracket-match.final-match {
+    background: linear-gradient(180deg, #fffdf1 0%, #f8f0c9 100%);
+    border: 2px solid rgba(191, 154, 52, 0.55);
+    box-shadow:
+        0 10px 22px rgba(191, 154, 52, 0.20),
+        0 0 0 1px rgba(255, 241, 170, 0.60) inset;
+}
+
+.bracket-match.final-match .bracket-match-meta {
+    background: linear-gradient(135deg, rgba(255, 229, 126, 0.65), rgba(230, 196, 84, 0.42));
+    color: #5c4700;
+    font-weight: 900;
+}
+
+.bracket-match.final-match .bracket-team.winner {
+    background: rgba(255, 224, 111, 0.45);
+}
+
+.bracket-match.third-place-match {
+    background: linear-gradient(180deg, #fff6ed 0%, #f0ddca 100%);
+    border: 2px solid rgba(165, 103, 55, 0.50);
+    box-shadow:
+        0 10px 20px rgba(130, 80, 42, 0.16),
+        0 0 0 1px rgba(229, 180, 135, 0.45) inset;
+}
+
+.bracket-match.third-place-match .bracket-match-meta {
+    background: linear-gradient(135deg, rgba(210, 151, 100, 0.45), rgba(178, 122, 78, 0.30));
+    color: #6a3d1d;
+    font-weight: 900;
+}
+
+.bracket-match.third-place-match .bracket-team.winner {
+    background: rgba(219, 167, 112, 0.35);
+}
+
+.bracket-match.third-place-match::after {
+    content: "THIRD PLACE";
+    position: absolute;
+    top: -1.35rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    padding: 0.16rem 0.48rem;
+    border-radius: 999px;
+    background: rgba(165, 103, 55, 0.16);
+    border: 1px solid rgba(165, 103, 55, 0.28);
+    color: #6a3d1d;
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.no-live-card {
+    line-height: 1.45;
+}
+
+.no-live-card .team-with-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    vertical-align: -0.12em;
+}
+
+.no-live-card .team-flag {
+    width: 22px;
+    height: 15px;
+}

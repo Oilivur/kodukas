@@ -205,7 +205,7 @@ async function loadWorldCupData(showLoading) {
     const statusElement = document.getElementById("worldCupStatus");
 
     if (showLoading) {
-        statusElement.textContent = "Loading World Cup data...";
+        statusElement.textContent = "Laen MM-i andmeid...";
     }
 
     try {
@@ -238,15 +238,15 @@ async function loadWorldCupData(showLoading) {
         renderPage();
 
         document.getElementById("worldCupUpdated").textContent =
-            `Updated: ${formatTallinnDateTime(new Date())}`;
+            `Uuendatud: ${formatTallinnDateTime(new Date())}`;
 
         statusElement.textContent = espnScoresLoaded
-            ? `Loaded ${allMatches.length} matches. Fast scores checked from ESPN.`
-            : `Loaded ${allMatches.length} matches from ${data.name}. ESPN scores unavailable right now.`;
+            ? `Laetud ${allMatches.length} mängu.`
+            : `Laetud ${allMatches.length} mängu. ESPN-i skoorid pole hetkel saadaval.`;
     } catch (error) {
         console.error(error);
         statusElement.textContent =
-            "Could not load World Cup data. The source may be temporarily unavailable.";
+            "MM-i andmeid ei õnnestunud laadida. Andmeallikas võib ajutiselt maas olla.";
     }
 }
 
@@ -486,7 +486,7 @@ function renderHeroStats() {
 
     container.innerHTML = `
         <div class="hero-stat next-game">
-            <span>${liveMatches.length > 0 ? "Live now" : "Next game"}</span>
+            <span>${liveMatches.length > 0 ? "Praegu käimas" : "Järgmine mäng"}</span>
             ${
                 liveMatches.length > 0
                     ? renderHeroMatch(liveMatches[0], true)
@@ -495,7 +495,7 @@ function renderHeroStats() {
                         : `
                             <div class="next-game-content">
                                 <div class="next-game-teams">
-                                    <span>No upcoming game</span>
+                                    <span>Tulevasi mänge pole</span>
                                 </div>
                             </div>
                         `
@@ -516,7 +516,7 @@ function renderHeroMatch(match, isLive) {
                 ${
                     isLive
                         ? `${getDisplayScore(match)} · ${getLiveDisplayText(match)}`
-                        : `${match.tallinnDateLabel}, ${match.tallinnTimeLabel} Tallinn time`
+                        : `${match.tallinnDateLabel}, ${match.tallinnTimeLabel} Eesti aeg`
                 }
             </em>
         </div>
@@ -537,8 +537,8 @@ function renderLiveGames() {
             <div class="no-live-card">
                 ${
                     nextMatch
-                        ? `No live game right now. Next: ${renderTeamLabel(nextMatch.team1)} vs ${renderTeamLabel(nextMatch.team2)} at ${nextMatch.tallinnTimeLabel} Tallinn time.`
-                        : "No live game right now."
+                        ? `Pole laiv mängu. Järgmine: ${renderTeamLabel(nextMatch.team1)} vs ${renderTeamLabel(nextMatch.team2)} kell ${nextMatch.tallinnTimeLabel} Eesti aja järgi.`
+                        : "Pole laiv mängu."
                 }
             </div>
         `;
@@ -559,7 +559,7 @@ function renderLiveGames() {
 
             <div class="live-team away">
                 ${renderTeamLabel(match.team2)}
-                <span class="live-meta">${escapeHtml(match.stageName)}</span>
+                <span class="live-meta">${escapeHtml(displayStageName(match.stageName))}</span>
             </div>
         </article>
     `).join("");
@@ -582,15 +582,15 @@ function renderBracket() {
     container.innerHTML = `
         <div class="bracket-shell">
             <div class="bracket-titles">
-                <div class="bracket-title">Round of 32</div>
-                <div class="bracket-title">Round of 16</div>
-                <div class="bracket-title">Quarter-finals</div>
-                <div class="bracket-title">Semi-finals</div>
-                <div class="bracket-title">Final</div>
-                <div class="bracket-title">Semi-finals</div>
-                <div class="bracket-title">Quarter-finals</div>
-                <div class="bracket-title">Round of 16</div>
-                <div class="bracket-title">Round of 32</div>
+                <div class="bracket-title">1/16</div>
+                <div class="bracket-title">1/8</div>
+                <div class="bracket-title">Veerandid</div>
+                <div class="bracket-title">Semid</div>
+                <div class="bracket-title">Finaal</div>
+                <div class="bracket-title">Semid</div>
+                <div class="bracket-title">Veerandid</div>
+                <div class="bracket-title">1/8</div>
+                <div class="bracket-title">1/16</div>
             </div>
 
             <div class="bracket-board">
@@ -760,7 +760,7 @@ function renderGroupResults() {
         .sort((a, b) => a.kickoffDate - b.kickoffDate);
 
     if (groupMatches.length === 0) {
-        container.innerHTML = `<p class="empty-state">No group-stage matches found.</p>`;
+        container.innerHTML = `<p class="empty-state">Alagrupimänge ei leitud.</p>`;
         return;
     }
 
@@ -775,8 +775,8 @@ function renderGroupResults() {
         return `
             <article class="stage-card">
                 <div class="card-header">
-                    <h3>${escapeHtml(groupName)}</h3>
-                    <span>${stageMatches.length} games</span>
+                    <h3>${escapeHtml(displayStageName(groupName))}</h3>
+                    <span>${stageMatches.length} mängu</span>
                 </div>
 
                 ${dateNames.map(dateName => `
@@ -796,7 +796,7 @@ function renderGroupMatch(match) {
     return `
         <div class="match-row">
             <div class="match-topline">
-                <span>${escapeHtml(match.round)}</span>
+                <span>${escapeHtml(displayRoundName(match.round))}</span>
                 <span>${badge}</span>
             </div>
 
@@ -807,7 +807,7 @@ function renderGroupMatch(match) {
             </div>
 
             <div class="match-meta">
-                <span>${escapeHtml(match.tallinnTimeLabel)} Tallinn time</span>
+                <span>${escapeHtml(match.tallinnTimeLabel)} Eesti aeg</span>
                 <span>${escapeHtml(match.ground)}</span>
             </div>
         </div>
@@ -816,18 +816,18 @@ function renderGroupMatch(match) {
 
 function getStatusBadge(match) {
     if (match.status === "FINISHED") {
-        return `<span class="status-badge status-finished">FT</span>`;
+        return `<span class="status-badge status-finished">Läbi</span>`;
     }
 
     if (isLiveMatch(match)) {
-        return `<span class="status-badge status-live">LIVE · ${escapeHtml(getLiveDisplayText(match))}</span>`;
+        return `<span class="status-badge status-live">LAIV · ${escapeHtml(getLiveDisplayText(match))}</span>`;
     }
 
     if (match.status === "MISSING_RESULT") {
-        return `<span class="status-badge status-missing">Result pending</span>`;
+        return `<span class="status-badge status-missing">Ootab tulemust</span>`;
     }
 
-    return `<span class="status-badge status-scheduled">Scheduled</span>`;
+    return `<span class="status-badge status-scheduled">Tulekul</span>`;
 }
 
 function getNextMatch() {
@@ -1091,7 +1091,7 @@ function getBracketMatchStatus(match) {
     }
 
     if (match.status === "FINISHED") {
-        return "FT";
+        return "Läbi";
     }
 
     if (!match.tallinnShortDateLabel || !match.tallinnTimeLabel) {
@@ -1153,14 +1153,14 @@ function getEstimatedMinute(kickoffDate) {
     }
 
     if (elapsedMinutes <= 60) {
-        return "HT?";
+        return "Vaheaeg?";
     }
 
     if (elapsedMinutes <= 120) {
         return `~${Math.min(120, elapsedMinutes - 15)}'`;
     }
 
-    return "ET/Pens?";
+    return "Lisaaeg/penaltid?";
 }
 
 function isLiveMatch(match) {
@@ -1476,6 +1476,98 @@ function formatTallinnTime(date) {
         hour: "2-digit",
         minute: "2-digit"
     }).format(date);
+}
+
+function displayStageName(value) {
+    const text = String(value ?? "");
+    const lower = text.toLowerCase();
+
+    const groupMatch = text.match(/^Group ([A-L])$/i);
+
+    if (groupMatch) {
+        return `Grupp ${groupMatch[1].toUpperCase()}`;
+    }
+
+    if (lower.includes("round of 32") || lower.includes("last 32")) {
+        return "1/16-finaal";
+    }
+
+    if (lower.includes("round of 16") || lower.includes("last 16")) {
+        return "kaheksandikfinaal";
+    }
+
+    if (lower.includes("quarter")) {
+        return "veerandfinaal";
+    }
+
+    if (lower.includes("semi")) {
+        return "poolfinaal";
+    }
+
+    if (lower.includes("match for third place") || lower.includes("third place")) {
+        return "kolmanda koha mäng";
+    }
+
+    if (lower.includes("final")) {
+        return "finaal";
+    }
+
+    return text;
+}
+
+function displayRoundName(value) {
+    const text = String(value ?? "");
+    const matchday = text.match(/^Matchday\s+(\d+)$/i);
+
+    if (matchday) {
+        return `${matchday[1]}. turnamendi päev`;
+    }
+
+    return displayStageName(text);
+}
+
+function translateStatusDetail(value) {
+    const text = String(value ?? "");
+    const lower = text.toLowerCase();
+    const trimmed = text.trim();
+
+    if (!trimmed) {
+        return "";
+    }
+
+    if (/^\d+(\+\d+)?['’]?$/.test(trimmed)) {
+        return trimmed;
+    }
+
+    if (lower === "ft" || lower === "final" || lower.includes("full time")) {
+        return "Läbi";
+    }
+
+    if (lower === "ht" || lower.includes("half")) {
+        return "Vaheaeg";
+    }
+
+    if (lower.includes("pen")) {
+        return "Penaltid";
+    }
+
+    if (lower.includes("extra")) {
+        return "Lisaaeg";
+    }
+
+    if (lower.includes("delayed")) {
+        return "Viibib";
+    }
+
+    if (lower.includes("postponed")) {
+        return "Edasi lükatud";
+    }
+
+    if (lower.includes("canceled") || lower.includes("cancelled")) {
+        return "Tühistatud";
+    }
+
+    return text;
 }
 
 function escapeHtml(value) {

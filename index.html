@@ -15,8 +15,17 @@
 <nav>
     <div class="box">
         <h3>Kraam</h3>
+        <a href="https://www.youtube.com" target="_blank">YouTube</a>
+        <a href="https://www.lhv.ee" target="_blank">LHV</a>
         <a href="https://ww-fmovies.com" target="_blank">Filmid</a>
         <a href="https://en.fmoviesz-to.com" target="_blank">Filmid II</a>
+    </div>
+
+    <div class="box">
+        <h3>Saated</h3>
+        <a href="https://pohjaeesti.treraadio.ee/kava/7/raagime-asjast" target="_blank">Tre</a>
+        <a href="https://vikerraadio.err.ee/arhiiv/samost_ja_sildam" target="_blank">Viker</a>
+        <a href="https://kuku.pleier.ee/podcast/keskpaevatund" target="_blank">Kuku</a>
     </div>
 
     <div class="box">
@@ -32,34 +41,57 @@
         <div class="world-cup-header">
             <div class="world-cup-title">
                 <p class="eyebrow">FIFA World Cup 2026</p>
-                <h2>MM Mängud</h2>
+                <h2>World Cup games</h2>
             </div>
 
             <div class="world-cup-actions">
-                <button id="refreshWorldCup" type="button">Värskenda</button>
-                <span id="worldCupUpdated">Laeb...</span>
+                <button id="refreshWorldCup" type="button">Refresh</button>
+                <span id="worldCupUpdated">Loading...</span>
             </div>
 
             <div id="worldCupHeroStats" class="world-cup-hero-stats"></div>
         </div>
 
-        <div class="world-cup-controls">
-            <input id="teamSearch" type="text" placeholder="Otsi meeskonda...">
+        <noscript>
+            <div class="noscript-card">
+                <h3>World Cup data needs JavaScript</h3>
+                <p>
+                    This page uses JavaScript to load fixtures, scores and the bracket automatically.
+                    Enable JavaScript to see the World Cup section.
+                </p>
 
-            <select id="stageFilter">
-                <option value="">Kogu värk</option>
-            </select>
+                <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026"
+                   target="_blank">
+                    Open official World Cup page
+                </a>
+            </div>
+
+            <style>
+                .world-cup-status,
+                .world-cup-content {
+                    display: none;
+                }
+            </style>
+        </noscript>
+
+        <p id="worldCupStatus" class="world-cup-status">Loading World Cup data...</p>
+
+        <div class="world-cup-content">
+            <section>
+                <h2 class="section-title">Live now</h2>
+                <div id="liveGamesGrid" class="live-games-grid"></div>
+            </section>
+
+            <section>
+                <h2 class="section-title">Tournament bracket</h2>
+                <div id="bracketContainer" class="bracket-container"></div>
+            </section>
+
+            <section>
+                <h2 class="section-title">Group results</h2>
+                <div id="groupResultsGrid" class="group-results-grid"></div>
+            </section>
         </div>
-
-        <section>
-            <h2 class="section-title">Seis</h2>
-            <div id="standingsGrid" class="standings-grid"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">Mängud</h2>
-            <div id="matchesGrid" class="matches-grid"></div>
-        </section>
     </section>
 </main>
 

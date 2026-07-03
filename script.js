@@ -704,32 +704,29 @@ function buildBracketData(knockoutMatches) {
         FINAL: getRoundMatches(knockoutMatches, "FINAL")
     };
 
-    fillNextRoundFromWinners(byRound.R32, byRound.R16);
-    fillNextRoundFromWinners(byRound.R16, byRound.QF);
-    fillNextRoundFromWinners(byRound.QF, byRound.SF);
-    fillNextRoundFromWinners(byRound.SF, byRound.FINAL);
+    const finalRound = byRound.FINAL.length > 0
+        ? byRound.FINAL
+        : [createPlaceholderMatch("Final")];
+
+
+    const orderedSF = orderPreviousRoundForNext(byRound.SF, finalRound);
+    const orderedQF = orderPreviousRoundForNext(byRound.QF, orderedSF);
+    const orderedR16 = orderPreviousRoundForNext(byRound.R16, orderedQF);
+    const orderedR32 = orderPreviousRoundForNext(byRound.R32, orderedR16);
+
+    fillNextRoundFromWinners(orderedR32, orderedR16);
+    fillNextRoundFromWinners(orderedR16, orderedQF);
+    fillNextRoundFromWinners(orderedQF, orderedSF);
+    fillNextRoundFromWinners(orderedSF, finalRound);
 
     return {
-        R32: splitRound(byRound.R32, 8),
-        R16: splitRound(byRound.R16, 4),
-        QF: splitRound(byRound.QF, 2),
-        SF: splitRound(byRound.SF, 1),
+        R32: splitRound(orderedR32, 8),
+        R16: splitRound(orderedR16, 4),
+        QF: splitRound(orderedQF, 2),
+        SF: splitRound(orderedSF, 1),
         FINAL: {
-            matches: byRound.FINAL.length > 0 ? byRound.FINAL : [createPlaceholderMatch("Final")]
+            matches: finalRound
         }
-    };
-}
-
-function getRoundMatches(matches, roundKey) {
-    return matches
-        .filter(match => match.roundKey === roundKey)
-        .sort(compareMatchesForBracket);
-}
-
-function splitRound(matches, leftCount) {
-    return {
-        left: matches.slice(0, leftCount),
-        right: matches.slice(leftCount)
     };
 }
 
@@ -750,6 +747,157 @@ function fillNextRoundFromWinners(previousRound, nextRound) {
             match.team2 = secondWinner;
         }
     });
+}
+
+function orderPreviousRoundForNext(previousRound, nextRound) {
+    if (!previousRound.length) {
+        return [];
+    }
+
+    if (!nextRound.length) {
+        return previousRound;
+    }
+
+    const ordered = [];
+    const used = new Set();
+
+    nextRound.forEach(nextMatch => {
+        const firstSource = findPreviousMatchForNextSlot(
+            getRawTeamName(nextMatch, "team1"),
+            nextMatch.team1,
+            previousRound
+        );
+
+        const secondSource = findPreviousMatchForNextSlot(
+            getRawTeamName(nextMatch, "team2"),
+            nextMatch.team2,
+            previousRound
+        );
+
+        addOrderedMatch(firstSource, ordered, used);
+        addOrderedMatch(secondSource, ordered, used);
+    });
+
+    previousRound.forEach(match => {
+        addOrderedMatch(match, ordered, used);
+    });
+
+    return ordered;
+}
+
+function findPreviousMatchForNextSlot(rawSlotName, cleanSlotName, previousRound) {
+    const referenceNumber = getWinnerReferenceNumber(rawSlotName);
+
+    if (referenceNumber !== null) {
+        const byNumber = previousRound.find(match => {
+            return getNormalizedMatchNumber(match) === referenceNumber;
+        });
+
+        if (byNumber) {
+            return byNumber;
+        }
+    }
+
+    if (!cleanSlotName || isPlaceholderTeam(cleanSlotName)) {
+        return null;
+    }
+
+    const byWinner = previousRound.find(match => {
+        return sameTeam(getMatchWinnerName(match), cleanSlotName);
+    });
+
+    if (byWinner) {
+        return byWinner;
+    }
+
+    return previousRound.find(match => {
+        return sameTeam(match.team1, cleanSlotName) || sameTeam(match.team2, cleanSlotName);
+    }) || null;
+}
+
+function addOrderedMatch(match, ordered, used) {
+    if (!match) {
+        return;
+    }
+
+    const key = match.id;
+
+    if (used.has(key)) {
+        return;
+    }
+
+    ordered.push(match);
+    used.add(key);
+}
+
+function getRawTeamName(match, side) {
+    if (!match) {
+        return "";
+    }
+
+    const raw = match.raw || {};
+
+    if (side === "team1") {
+        return raw.team1 ?? match.team1 ?? "";
+    }
+
+    return raw.team2 ?? match.team2 ?? "";
+}
+
+function getWinnerReferenceNumber(value) {
+    const match = String(value ?? "").trim().match(/^W\s*(\d+)$/i);
+
+    if (!match) {
+        return null;
+    }
+
+    return Number(match[1]);
+}
+
+function getNormalizedMatchNumber(match) {
+    if (!match) {
+        return null;
+    }
+
+    return getMatchNumber(match.raw || match);
+}
+
+function getMatchNumber(rawMatch) {
+    if (!rawMatch) {
+        return null;
+    }
+
+    const candidates = [
+        rawMatch.num,
+        rawMatch.number,
+        rawMatch.matchNumber,
+        rawMatch.match,
+        rawMatch.no,
+        rawMatch.id
+    ];
+
+    for (const candidate of candidates) {
+        const parsed = Number(candidate);
+
+        if (!Number.isNaN(parsed)) {
+            return parsed;
+        }
+    }
+
+    return null;
+}
+
+function getRoundMatches(matches, roundKey) {
+    return matches
+        .filter(match => match.roundKey === roundKey)
+        .sort(compareMatchesForBracket);
+}
+
+function splitRound(matches, leftCount) {
+    return {
+        left: matches.slice(0, leftCount),
+        right: matches.slice(leftCount)
+    };
 }
 
 function renderGroupResults() {

@@ -1,15 +1,17 @@
 <template>
-  <main class="weather">
-    <RouterLink to="/">← Tagasi</RouterLink>
+  <main class="page">
+    <header class="page-heading">
+      <span class="eyebrow">Ilm</span>
 
-    <h1>Ilmakaart</h1>
+      <h1>Eesti ilmakaart</h1>
 
-    <p>Siia tuleb ilmakaart.</p>
+      <p>
+        Radar, pilved ja ilmatingimused üle Eesti.
+      </p>
+    </header>
+
+    <section class="panel">
+      Ilmakaart tuleb siia.
+    </section>
   </main>
 </template>
-
-<style scoped>
-.weather {
-  padding: 32px;
-}
-</style>

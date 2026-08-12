@@ -48,6 +48,8 @@ const emit =
     selectDate: [
       date: string,
     ]
+
+    close: []
   }>()
 
 const hourRow =
@@ -416,6 +418,24 @@ onBeforeUnmount(() => {
   <section
     class="forecast-dock"
   >
+    <!-- Mobile bottom-sheet grip -->
+    <div
+      class="dock-grip"
+      aria-hidden="true"
+    ></div>
+
+    <button
+      type="button"
+      class="dock-close"
+      aria-label="Sulge ilmapaneel"
+      title="Sulge"
+      @click="
+        emit('close')
+      "
+    >
+      ×
+    </button>
+
     <div
       v-if="
         loading &&
@@ -481,9 +501,20 @@ onBeforeUnmount(() => {
         <header
           class="section-heading"
         >
-          <span>
-            HETKEILM
-          </span>
+          <div
+            class="section-heading__title"
+          >
+            <span>
+              HETKEILM
+            </span>
+
+            <span
+              v-if="location"
+              class="current-location-inline"
+            >
+              {{ location.primary }}
+            </span>
+          </div>
 
           <div
             class="section-heading__status"
@@ -578,7 +609,9 @@ onBeforeUnmount(() => {
               }}
             </span>
 
-            <span>
+            <span
+              class="metric-humidity"
+            >
               Niiskus
               {{
                 Math.round(
@@ -660,9 +693,13 @@ onBeforeUnmount(() => {
         <header
           class="section-heading"
         >
-          <span>
-            7 PÄEVA PROGNOOS
-          </span>
+          <div
+            class="section-heading__title"
+          >
+            <span>
+              7 PÄEVA PROGNOOS
+            </span>
+          </div>
         </header>
 
         <div
@@ -768,9 +805,13 @@ onBeforeUnmount(() => {
           "
           class="section-heading"
         >
-          <span>
-            TUNNIPROGNOOS
-          </span>
+          <div
+            class="section-heading__title"
+          >
+            <span>
+              TUNNIPROGNOOS
+            </span>
+          </div>
 
           <span
             class="section-heading__day"
@@ -888,36 +929,42 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .forecast-dock {
-  position: absolute;
+  position:
+    absolute;
 
-  left:
-    clamp(
-      0.65rem,
-      1.2vw,
-      1.3rem
-    );
-
-  right:
-    clamp(
-      0.65rem,
-      1.2vw,
-      1.3rem
-    );
+  left: 50%;
 
   bottom:
     clamp(
       0.65rem,
       1.3dvh,
-      1.3rem
+      1.2rem
     );
 
   z-index: 900;
 
+  /*
+   * Desktop no longer stretches almost all the
+   * way from one side of the monitor to the other.
+   */
+  width:
+    min(
+      82rem,
+      calc(
+        100% -
+        clamp(
+        2rem,
+        10vw,
+        10rem
+        )
+      )
+    );
+
   padding:
     clamp(
-      0.75rem,
-      1.1vw,
-      1.05rem
+      0.65rem,
+      0.9vw,
+      0.9rem
     );
 
   color:
@@ -928,7 +975,7 @@ onBeforeUnmount(() => {
       11,
       15,
       18,
-      0.9
+      0.92
     );
 
   border:
@@ -941,21 +988,114 @@ onBeforeUnmount(() => {
 
   backdrop-filter:
     blur(1.1rem);
+
+  transform:
+    translateX(-50%);
 }
+
+/* -------------------------
+   Close / sheet controls
+------------------------- */
+
+.dock-close {
+  position:
+    absolute;
+
+  top:
+    0.5rem;
+
+  right:
+    0.55rem;
+
+  z-index: 5;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  width:
+    1.8rem;
+
+  aspect-ratio: 1;
+
+  padding: 0;
+
+  color:
+    var(--text-muted);
+
+  background:
+    transparent;
+
+  border:
+    0.0625rem
+    solid
+    transparent;
+
+  border-radius:
+    0.35rem;
+
+  font:
+    inherit;
+
+  font-size:
+    1.3rem;
+
+  line-height: 1;
+
+  cursor:
+    pointer;
+
+  transition:
+    color
+    120ms ease,
+    background
+    120ms ease,
+    border-color
+    120ms ease;
+}
+
+.dock-close:hover {
+  color:
+    var(--accent);
+
+  background:
+    var(--surface);
+
+  border-color:
+    var(--border);
+}
+
+.dock-grip {
+  display: none;
+}
+
+/* -------------------------
+   Empty/loading
+------------------------- */
 
 .forecast-message {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
 
-  gap: 0.25rem;
+  flex-direction:
+    column;
+
+  justify-content:
+    center;
+
+  gap:
+    0.25rem;
 
   min-height:
     clamp(
-      3.8rem,
-      7dvh,
-      5rem
+      3.4rem,
+      6dvh,
+      4.5rem
     );
+
+  padding-right:
+    2rem;
 }
 
 .forecast-message strong {
@@ -976,28 +1116,33 @@ onBeforeUnmount(() => {
     0.82rem;
 }
 
-/* Headings */
+/* -------------------------
+   Section headings
+------------------------- */
 
 .section-heading {
   display: flex;
 
-  align-items: center;
+  align-items:
+    center;
+
   justify-content:
     space-between;
 
-  gap: 1rem;
+  gap:
+    1rem;
 
   margin-bottom:
-    0.55rem;
+    0.42rem;
 
   color:
     var(--text-muted);
 
   font-size:
     clamp(
-      0.62rem,
-      0.68vw,
-      0.74rem
+      0.6rem,
+      0.65vw,
+      0.72rem
     );
 
   font-weight: 700;
@@ -1009,18 +1154,49 @@ onBeforeUnmount(() => {
     uppercase;
 }
 
-.section-heading
+.current-weather-section
+> .section-heading {
+  padding-right:
+    2rem;
+}
+
+.section-heading__title {
+  display: flex;
+
+  align-items:
+    center;
+
+  gap:
+    0.55rem;
+}
+
+.section-heading__title
 > span:first-child {
   color:
     var(--accent);
 }
 
+.current-location-inline {
+  display: none;
+
+  color:
+    var(--text);
+
+  letter-spacing:
+    normal;
+
+  text-transform:
+    none;
+}
+
 .section-heading__status {
   display: flex;
 
-  align-items: center;
+  align-items:
+    center;
 
-  gap: 0.7rem;
+  gap:
+    0.7rem;
 
   letter-spacing:
     normal;
@@ -1041,8 +1217,7 @@ onBeforeUnmount(() => {
 
 .section-heading__day {
   color:
-    var(--text-muted)
-  !important;
+    var(--text-muted);
 
   letter-spacing:
     normal;
@@ -1051,11 +1226,13 @@ onBeforeUnmount(() => {
     none;
 }
 
-/* Current */
+/* -------------------------
+   Current weather
+------------------------- */
 
 .current-weather-section {
   padding-bottom:
-    0.75rem;
+    0.6rem;
 
   border-bottom:
     0.0625rem
@@ -1079,9 +1256,9 @@ onBeforeUnmount(() => {
 
   gap:
     clamp(
-      1rem,
-      2vw,
-      2rem
+      0.8rem,
+      1.5vw,
+      1.5rem
     );
 }
 
@@ -1092,7 +1269,7 @@ onBeforeUnmount(() => {
     center;
 
   gap:
-    0.7rem;
+    0.6rem;
 }
 
 .selected-weather__condition
@@ -1103,7 +1280,7 @@ onBeforeUnmount(() => {
     column;
 
   gap:
-    0.1rem;
+    0.08rem;
 }
 
 .selected-weather__icon {
@@ -1112,25 +1289,23 @@ onBeforeUnmount(() => {
 
   font-size:
     clamp(
-      2.4rem,
-      3.2vw,
-      3.4rem
+      2rem,
+      2.6vw,
+      2.8rem
     );
 }
 
 .selected-weather__temperature {
   font-size:
     clamp(
-      1.8rem,
-      2.5vw,
-      2.6rem
+      1.65rem,
+      2.1vw,
+      2.25rem
     );
 
-  font-weight:
-    700;
+  font-weight: 700;
 
-  line-height:
-    0.95;
+  line-height: 0.95;
 }
 
 .selected-weather__condition
@@ -1139,10 +1314,9 @@ strong {
     var(--text-muted);
 
   font-size:
-    0.78rem;
+    0.72rem;
 
-  font-weight:
-    500;
+  font-weight: 500;
 }
 
 .selected-weather__metrics {
@@ -1152,17 +1326,17 @@ strong {
     wrap;
 
   gap:
-    0.4rem
-    1.2rem;
+    0.3rem
+    1rem;
 
   color:
     var(--text-muted);
 
   font-size:
     clamp(
-      0.75rem,
-      0.85vw,
-      0.9rem
+      0.7rem,
+      0.78vw,
+      0.84rem
     );
 }
 
@@ -1176,13 +1350,13 @@ strong {
     flex-end;
 
   gap:
-    0.12rem;
+    0.1rem;
 
   min-width:
     clamp(
-      9rem,
-      13vw,
-      13rem
+      8rem,
+      11vw,
+      11rem
     );
 
   white-space:
@@ -1194,10 +1368,9 @@ strong {
     var(--accent);
 
   font-size:
-    0.6rem;
+    0.56rem;
 
-  font-weight:
-    700;
+  font-weight: 700;
 
   letter-spacing:
     0.1em;
@@ -1205,14 +1378,11 @@ strong {
 
 .selected-weather__location
 strong {
-  margin-top:
-    0.08rem;
-
   font-size:
     clamp(
-      0.82rem,
-      0.9vw,
-      1rem
+      0.78rem,
+      0.84vw,
+      0.9rem
     );
 }
 
@@ -1221,7 +1391,7 @@ strong {
     var(--text-muted);
 
   font-size:
-    0.7rem;
+    0.64rem;
 }
 
 .selected-weather__coordinates {
@@ -1229,17 +1399,18 @@ strong {
     var(--text-muted);
 
   font-size:
-    0.64rem;
+    0.58rem;
 
-  opacity:
-    0.75;
+  opacity: 0.75;
 }
 
-/* Weekly */
+/* -------------------------
+   Weekly forecast
+------------------------- */
 
 .forecast-section {
   padding-top:
-    0.7rem;
+    0.5rem;
 }
 
 .week-row {
@@ -1255,7 +1426,7 @@ strong {
     );
 
   gap:
-    0.35rem;
+    0.3rem;
 }
 
 .week-day {
@@ -1271,13 +1442,13 @@ strong {
     center;
 
   gap:
-    0.25rem;
+    0.15rem;
 
   min-width: 0;
 
   padding:
-    0.55rem
-    0.35rem;
+    0.4rem
+    0.3rem;
 
   color:
     var(--text);
@@ -1351,7 +1522,7 @@ strong {
     uppercase;
 
   font-size:
-    0.78rem;
+    0.72rem;
 }
 
 .week-day__date {
@@ -1359,21 +1530,21 @@ strong {
     var(--text-muted);
 
   font-size:
-    0.68rem;
+    0.62rem;
 }
 
 .week-day__icon {
   margin-block:
-    0.2rem;
+    0.12rem;
 
   color:
     var(--text);
 
   font-size:
     clamp(
-      1.5rem,
-      2vw,
-      2.1rem
+      1.35rem,
+      1.7vw,
+      1.8rem
     );
 
   transition:
@@ -1391,14 +1562,14 @@ strong {
     center;
 
   gap:
-    0.15rem
-    0.55rem;
+    0.1rem
+    0.45rem;
 
   font-size:
     clamp(
-      0.68rem,
-      0.75vw,
-      0.8rem
+      0.62rem,
+      0.68vw,
+      0.74rem
     );
 }
 
@@ -1413,17 +1584,19 @@ span:last-child {
     var(--text-muted);
 
   font-size:
-    0.68rem;
+    0.62rem;
 }
 
-/* Hourly */
+/* -------------------------
+   Hourly forecast
+------------------------- */
 
 .hourly-section {
   margin-top:
-    0.7rem;
+    0.5rem;
 
   padding-top:
-    0.7rem;
+    0.5rem;
 
   border-top:
     0.0625rem
@@ -1435,7 +1608,7 @@ span:last-child {
   display: flex;
 
   gap:
-    0.35rem;
+    0.3rem;
 
   overflow-x:
     auto;
@@ -1454,18 +1627,18 @@ span:last-child {
     transparent;
 
   padding:
-    0.15rem
+    0.1rem
     0
-    0.45rem;
+    0.35rem;
 }
 
 .hour-card {
   flex:
     0 0
     clamp(
-      4.8rem,
-      6.2vw,
-      6.3rem
+      4.3rem,
+      5.3vw,
+      5.4rem
     );
 
   display: flex;
@@ -1477,11 +1650,11 @@ span:last-child {
     center;
 
   gap:
-    0.15rem;
+    0.1rem;
 
   padding:
-    0.5rem
-    0.3rem;
+    0.4rem
+    0.25rem;
 
   background:
     var(--bg-raised);
@@ -1527,7 +1700,7 @@ span:last-child {
     var(--text-muted);
 
   font-size:
-    0.7rem;
+    0.64rem;
 }
 
 .hour-card--upcoming time {
@@ -1537,13 +1710,14 @@ span:last-child {
 
 .hour-card__icon {
   margin:
-    0.2rem 0;
+    0.12rem
+    0;
 
   color:
     var(--text-muted);
 
   font-size:
-    1.4rem;
+    1.2rem;
 }
 
 .hour-card--upcoming
@@ -1554,7 +1728,7 @@ span:last-child {
 
 .hour-card strong {
   font-size:
-    0.95rem;
+    0.86rem;
 }
 
 .hour-card span {
@@ -1562,7 +1736,7 @@ span:last-child {
     var(--text-muted);
 
   font-size:
-    0.64rem;
+    0.58rem;
 
   text-align:
     center;
@@ -1570,13 +1744,13 @@ span:last-child {
 
 .weather-source {
   margin-top:
-    0.3rem;
+    0.22rem;
 
   color:
     var(--text-muted);
 
   font-size:
-    0.58rem;
+    0.54rem;
 
   text-align:
     right;
@@ -1587,9 +1761,131 @@ span:last-child {
     var(--accent);
 }
 
+/* =========================
+   PHONE / SMALL TABLET
+========================= */
+
 @media (
 max-width: 50rem
 ) {
+  .forecast-dock {
+    /*
+     * Nearly full width is useful on a phone.
+     * Height is the valuable resource.
+     */
+    width:
+      calc(
+        100% -
+        0.8rem
+      );
+
+    bottom:
+      0.4rem;
+
+    /*
+     * Never allow the weather panel to consume
+     * most of the map.
+     */
+    max-height:
+      48dvh;
+
+    padding:
+      0.55rem
+      0.6rem
+      0.5rem;
+
+    overflow-y:
+      auto;
+
+    overscroll-behavior-y:
+      contain;
+
+    border-radius:
+      0.7rem;
+  }
+
+  /*
+   * Makes it visually read like a mobile bottom sheet,
+   * even though closing is done through the X.
+   */
+  .dock-grip {
+    display: block;
+
+    width:
+      2.5rem;
+
+    height:
+      0.2rem;
+
+    margin:
+      -0.15rem
+      auto
+      0.35rem;
+
+    background:
+      var(--border-strong);
+
+    border-radius:
+      999rem;
+  }
+
+  .dock-close {
+    top:
+      0.35rem;
+
+    right:
+      0.4rem;
+
+    width:
+      2rem;
+
+    font-size:
+      1.35rem;
+  }
+
+  .section-heading {
+    margin-bottom:
+      0.3rem;
+
+    font-size:
+      0.58rem;
+  }
+
+  .current-weather-section
+  > .section-heading {
+    padding-right:
+      2rem;
+  }
+
+  /*
+   * Keep the place name visible without dedicating
+   * a separate vertical block to it.
+   */
+  .current-location-inline {
+    display:
+      inline;
+
+    max-width:
+      8rem;
+
+    overflow:
+      hidden;
+
+    text-overflow:
+      ellipsis;
+
+    white-space:
+      nowrap;
+  }
+
+  .section-heading__status {
+    gap:
+      0.35rem;
+  }
+
+  /*
+   * Current weather becomes one compact row.
+   */
   .selected-weather {
     grid-template-columns:
       auto
@@ -1597,44 +1893,256 @@ max-width: 50rem
         0,
         1fr
       );
+
+    gap:
+      0.65rem;
   }
 
+  .selected-weather__icon {
+    font-size:
+      clamp(
+        1.8rem,
+        8vw,
+        2.3rem
+      );
+  }
+
+  .selected-weather__temperature {
+    font-size:
+      clamp(
+        1.5rem,
+        7vw,
+        1.9rem
+      );
+  }
+
+  .selected-weather__condition
+  strong {
+    font-size:
+      0.62rem;
+  }
+
+  .selected-weather__metrics {
+    gap:
+      0.2rem
+      0.6rem;
+
+    font-size:
+      clamp(
+        0.62rem,
+        2.7vw,
+        0.72rem
+      );
+  }
+
+  /*
+   * Coordinates and county hierarchy aren't worth
+   * the vertical space on a small screen. The town/
+   * district is already in the section heading.
+   */
   .selected-weather__location {
-    display:
-      none;
+    display: none;
   }
 
+  /*
+   * Humidity is useful, but the least important of
+   * these metrics when vertical space is tight.
+   */
+  .metric-humidity {
+    display: none;
+  }
+
+  .current-weather-section {
+    padding-bottom:
+      0.4rem;
+  }
+
+  .forecast-section {
+    padding-top:
+      0.4rem;
+  }
+
+  /*
+   * Seven days become one horizontal strip rather
+   * than trying to squeeze seven columns onto a phone.
+   */
   .week-row {
-    display:
-      flex;
+    display: flex;
+
+    gap:
+      0.25rem;
 
     overflow-x:
       auto;
 
+    overscroll-behavior-x:
+      contain;
+
     scrollbar-width:
-      thin;
+      none;
+
+    padding-bottom:
+      0.15rem;
+  }
+
+  .week-row::-webkit-scrollbar {
+    display: none;
   }
 
   .week-day {
     flex:
       0 0
-      5.6rem;
-  }
-
-  .section-heading {
-    align-items:
-      flex-start;
-  }
-
-  .section-heading__status {
-    flex-direction:
-      column;
-
-    align-items:
-      flex-end;
+      clamp(
+        4.35rem,
+        20vw,
+        5rem
+      );
 
     gap:
+      0.08rem;
+
+    padding:
+      0.3rem
+      0.2rem;
+  }
+
+  .week-day > strong {
+    font-size:
+      0.64rem;
+  }
+
+  .week-day__date {
+    font-size:
+      0.55rem;
+  }
+
+  .week-day__icon {
+    margin-block:
+      0.08rem;
+
+    font-size:
+      1.25rem;
+  }
+
+  .week-day__temperatures {
+    flex-direction:
+      row;
+
+    gap:
+      0.3rem;
+
+    font-size:
+      0.58rem;
+  }
+
+  .week-day__rain {
+    font-size:
+      0.55rem;
+  }
+
+  .hourly-section {
+    margin-top:
+      0.4rem;
+
+    padding-top:
+      0.4rem;
+  }
+
+  .section-heading__day {
+    max-width:
+      9rem;
+
+    overflow:
+      hidden;
+
+    text-overflow:
+      ellipsis;
+
+    white-space:
+      nowrap;
+  }
+
+  .hour-row {
+    gap:
+      0.25rem;
+
+    scrollbar-width:
+      none;
+
+    padding-bottom:
+      0.15rem;
+  }
+
+  .hour-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hour-card {
+    flex-basis:
+      clamp(
+        4rem,
+        19vw,
+        4.7rem
+      );
+
+    gap:
+      0.05rem;
+
+    padding:
+      0.3rem
+      0.2rem;
+  }
+
+  .hour-card time {
+    font-size:
+      0.58rem;
+  }
+
+  .hour-card__icon {
+    margin:
+      0.08rem
+      0;
+
+    font-size:
+      1.05rem;
+  }
+
+  .hour-card strong {
+    font-size:
+      0.78rem;
+  }
+
+  .hour-card span {
+    font-size:
+      0.53rem;
+  }
+
+  .weather-source {
+    margin-top:
       0.1rem;
+
+    font-size:
+      0.48rem;
+  }
+}
+
+/*
+ * Very short displays / landscape phones.
+ */
+@media (
+max-height: 36rem
+) {
+  .forecast-dock {
+    max-height:
+      52dvh;
+  }
+
+  .week-day__rain {
+    display: none;
+  }
+
+  .weather-source {
+    display: none;
   }
 }
 </style>

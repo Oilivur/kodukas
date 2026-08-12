@@ -75,6 +75,13 @@ const selectedError =
     null,
   )
 
+/*
+ * The forecast panel can be completely hidden without
+ * throwing away the selected location or forecast data.
+ */
+const dockOpen =
+  ref(true)
+
 const hoverCache =
   new Map<
     string,
@@ -253,12 +260,9 @@ function handleMapLeave() {
 async function handleMapSelect(
   point: MapWeatherPoint,
 ) {
-  /*
-   * Move marker immediately.
-   *
-   * Existing bottom-panel data remains visible while
-   * the requested location is loading.
-   */
+  dockOpen.value =
+    true
+
   selectedPoint.value =
     point
 
@@ -279,8 +283,10 @@ async function handleMapSelect(
     new AbortController()
 
   /*
-   * Start location lookup immediately, but do not allow
-   * reverse-geocoding failure to break weather loading.
+   * Run BOTH requests at the same time.
+   *
+   * The location lookup is allowed to fail without
+   * breaking the weather forecast.
    */
   const locationPromise =
     reverseGeocodeLocation(
@@ -289,10 +295,8 @@ async function handleMapSelect(
     ).catch(
       (error) => {
         if (
-          error instanceof
-          DOMException &&
-          error.name ===
-          'AbortError'
+          error instanceof DOMException &&
+          error.name === 'AbortError'
         ) {
           throw error
         }
@@ -306,16 +310,25 @@ async function handleMapSelect(
       },
     )
 
+  const forecastPromise =
+    fetchWeatherForecast(
+      point,
+      forecastAbort.signal,
+    )
+
   try {
     /*
-     * Weather remains the important request.
-     * We do not wait for location naming before starting it.
+     * Keep ALL existing dock contents visible until both
+     * pieces of new information are ready.
      */
-    const forecast =
-      await fetchWeatherForecast(
-        point,
-        forecastAbort.signal,
-      )
+    const [
+      forecast,
+      location,
+    ] =
+      await Promise.all([
+        forecastPromise,
+        locationPromise,
+      ])
 
     if (
       sequence !==
@@ -335,10 +348,16 @@ async function handleMapSelect(
       )
 
     /*
-     * Swap the weather data in place.
+     * Update everything together.
+     *
+     * There is no intermediate state where the new weather
+     * is shown without its location name.
      */
     selectedForecast.value =
       forecast
+
+    selectedLocation.value =
+      location
 
     selectedDate.value =
       matchingDate
@@ -348,46 +367,16 @@ async function handleMapSelect(
             ?.date ?? ''
         )
 
-    /*
-     * Until the new place name has resolved, remove the
-     * previous name so we never pair an old city name with
-     * the new weather data.
-     *
-     * Coordinates remain available as the fallback.
-     */
-    selectedLocation.value =
-      null
-
     hoverCache.set(
       hoverCacheKey(
         point,
       ),
       forecast.current,
     )
-
-    /*
-     * The location request was already running in parallel,
-     * so in normal circumstances this should resolve almost
-     * immediately after the forecast.
-     */
-    const location =
-      await locationPromise
-
-    if (
-      sequence !==
-      forecastSequence
-    ) {
-      return
-    }
-
-    selectedLocation.value =
-      location
   } catch (error) {
     if (
-      error instanceof
-      DOMException &&
-      error.name ===
-      'AbortError'
+      error instanceof DOMException &&
+      error.name === 'AbortError'
     ) {
       return
     }
@@ -414,6 +403,16 @@ async function handleMapSelect(
         false
     }
   }
+}
+
+function closeDock() {
+  dockOpen.value =
+    false
+}
+
+function openDock() {
+  dockOpen.value =
+    true
 }
 
 onBeforeUnmount(() => {
@@ -467,26 +466,64 @@ onBeforeUnmount(() => {
       "
     />
 
-    <WeatherForecastDock
-      :forecast="
-        selectedForecast
-      "
-      :location="
-        selectedLocation
-      "
-      :selected-date="
-        selectedDate
-      "
-      :loading="
-        selectedLoading
-      "
-      :error="
-        selectedError
-      "
-      @select-date="
-        selectedDate = $event
-      "
-    />
+    <Transition
+      name="dock"
+    >
+      <WeatherForecastDock
+        v-if="dockOpen"
+        :forecast="
+          selectedForecast
+        "
+        :location="
+          selectedLocation
+        "
+        :selected-date="
+          selectedDate
+        "
+        :loading="
+          selectedLoading
+        "
+        :error="
+          selectedError
+        "
+        @select-date="
+          selectedDate = $event
+        "
+        @close="
+          closeDock
+        "
+      />
+    </Transition>
+
+    <Transition
+      name="dock-reopen"
+    >
+      <button
+        v-if="!dockOpen"
+        type="button"
+        class="weather-dock-reopen"
+        @click="
+          openDock
+        "
+      >
+        <span
+          class="weather-dock-reopen__dot"
+        ></span>
+
+        <span>
+          {{
+            selectedLocation?.primary ??
+            'Näita prognoosi'
+          }}
+        </span>
+
+        <span
+          class="weather-dock-reopen__arrow"
+        >
+          ↑
+        </span>
+      </button>
+    </Transition>
   </main>
 </template>
 
@@ -590,5 +627,161 @@ onBeforeUnmount(() => {
 
   border-color:
     var(--accent-border);
+}
+
+/* -------------------------
+   Closed forecast button
+------------------------- */
+
+.weather-dock-reopen {
+  position:
+    absolute;
+
+  left: 50%;
+
+  bottom:
+    clamp(
+      0.65rem,
+      1.4dvh,
+      1.2rem
+    );
+
+  z-index:
+    900;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    0.5rem;
+
+  padding:
+    0.6rem
+    0.85rem;
+
+  color:
+    var(--text);
+
+  background:
+    rgba(
+      11,
+      15,
+      18,
+      0.9
+    );
+
+  border:
+    0.0625rem
+    solid
+    var(--border);
+
+  border-radius:
+    999rem;
+
+  backdrop-filter:
+    blur(1rem);
+
+  font:
+    inherit;
+
+  font-size:
+    clamp(
+      0.72rem,
+      0.82vw,
+      0.86rem
+    );
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+  transform:
+    translateX(-50%);
+
+  transition:
+    color
+    120ms ease,
+    border-color
+    120ms ease,
+    background
+    120ms ease;
+}
+
+.weather-dock-reopen:hover {
+  color:
+    var(--accent);
+
+  background:
+    var(--surface);
+
+  border-color:
+    var(--accent-border);
+}
+
+.weather-dock-reopen__dot {
+  width:
+    0.5rem;
+
+  aspect-ratio: 1;
+
+  background:
+    var(--accent);
+
+  border-radius:
+    50%;
+}
+
+.weather-dock-reopen__arrow {
+  color:
+    var(--accent);
+}
+
+/* -------------------------
+   Dock transitions
+------------------------- */
+
+.dock-enter-active,
+.dock-leave-active {
+  transition:
+    opacity
+    180ms ease,
+    transform
+    180ms ease;
+}
+
+.dock-enter-from,
+.dock-leave-to {
+  opacity: 0;
+
+  transform:
+    translate(
+      -50%,
+      1rem
+    );
+}
+
+.dock-reopen-enter-active,
+.dock-reopen-leave-active {
+  transition:
+    opacity
+    150ms ease,
+    transform
+    150ms ease;
+}
+
+.dock-reopen-enter-from,
+.dock-reopen-leave-to {
+  opacity: 0;
+
+  transform:
+    translate(
+      -50%,
+      0.5rem
+    );
 }
 </style>

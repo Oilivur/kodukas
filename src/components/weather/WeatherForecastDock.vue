@@ -486,9 +486,14 @@ onBeforeUnmount(() => {
         Vali asukoht kaardilt
       </strong>
 
-      <span>
+      <span class="desktop-instructions">
         Liiguta hiirt hetkeilma vaatamiseks.
         Klõpsa kaardil prognoosi avamiseks.
+      </span>
+
+            <span class="touch-instructions">
+        Puuduta kaarti asukoha valimiseks
+        ja prognoosi avamiseks.
       </span>
     </div>
 
@@ -1109,9 +1114,6 @@ onBeforeUnmount(() => {
 
 .forecast-message
 > span:last-child {
-  color:
-    var(--text-muted);
-
   font-size:
     0.82rem;
 }
@@ -1759,6 +1761,31 @@ span:last-child {
 .weather-source a:hover {
   color:
     var(--accent);
+}
+
+.desktop-instructions {
+  display: inline;
+}
+
+.touch-instructions {
+  display: none;
+}
+
+.desktop-instructions,
+.touch-instructions {
+  color: var(--accent);
+  opacity: 0.8;
+  font-size: 0.8rem;
+}
+
+@media (hover: none) {
+  .desktop-instructions {
+    display: none;
+  }
+
+  .touch-instructions {
+    display: inline;
+  }
 }
 
 /* =========================

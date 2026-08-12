@@ -29,8 +29,6 @@ const fullScreenView =
         <span
             class="site-brand-mark"
         ></span>
-
-        Oilivur
       </RouterLink>
 
       <nav class="site-nav">

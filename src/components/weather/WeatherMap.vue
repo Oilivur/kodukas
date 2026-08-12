@@ -256,11 +256,12 @@ function fitEstonia() {
     },
   )
 
-  if (
+  const shouldZoomIn =
     window.matchMedia(
-      '(min-width: 56.25rem)',
+      '(min-width: 56.25rem), (hover: none) and (pointer: coarse)',
     ).matches
-  ) {
+
+  if (shouldZoomIn) {
     map.setZoom(
       map.getZoom() + 1,
       {

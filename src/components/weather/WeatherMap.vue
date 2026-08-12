@@ -16,216 +16,209 @@ import type {
 import 'leaflet/dist/leaflet.css'
 
 const props =
-    withDefaults(
-        defineProps<{
-          selectedPoint:
-              MapWeatherPoint | null
-
-          bottomInsetRatio?:
-              number
-        }>(),
-        {
-          bottomInsetRatio:
-              0.13,
-        },
-    )
+  defineProps<{
+    selectedPoint:
+      MapWeatherPoint | null
+  }>()
 
 const emit =
-    defineEmits<{
-      hover: [
-        point:
-            MapWeatherPoint,
-      ]
+  defineEmits<{
+    hover: [
+      point:
+        MapWeatherPoint,
+    ]
 
-      leave: []
+    leave: []
 
-      select: [
-        point:
-            MapWeatherPoint,
-      ]
-    }>()
+    select: [
+      point:
+        MapWeatherPoint,
+    ]
+  }>()
 
 const mapElement =
-    ref<HTMLDivElement | null>(
-        null,
-    )
+  ref<HTMLDivElement | null>(
+    null,
+  )
 
 const mapBrightness =
-    ref(1)
+  ref(1)
 
 let map:
-    L.Map | null =
-    null
+  L.Map | null =
+  null
 
 let selectedMarker:
-    L.Marker | null =
-    null
+  L.Marker | null =
+  null
 
 let toneTimer:
-    number | null =
-    null
+  number | null =
+  null
 
 const mapStyle =
-    computed(
-        () => ({
-          '--map-brightness':
-              mapBrightness.value.toString(),
-        }),
-    )
+  computed(
+    () => ({
+      '--map-brightness':
+        mapBrightness.value.toString(),
+    }),
+  )
 
 const ESTONIA_BOUNDS =
-    L.latLngBounds(
-        [57.3, 21.45],
-        [59.9, 28.35],
-    )
+  L.latLngBounds(
+    [57.3, 21.45],
+    [59.9, 28.35],
+  )
 
 function currentEstoniaHour():
-    number {
+  number {
   const parts =
-      new Intl.DateTimeFormat(
-          'en-GB',
-          {
-            timeZone:
-                'Europe/Tallinn',
+    new Intl.DateTimeFormat(
+      'en-GB',
+      {
+        timeZone:
+          'Europe/Tallinn',
 
-            hour:
-                '2-digit',
+        hour:
+          '2-digit',
 
-            minute:
-                '2-digit',
+        minute:
+          '2-digit',
 
-            hourCycle:
-                'h23',
-          },
-      ).formatToParts(
-          new Date(),
-      )
+        hourCycle:
+          'h23',
+      },
+    ).formatToParts(
+      new Date(),
+    )
 
   const hour =
-      Number(
-          parts.find(
-              (part) =>
-                  part.type ===
-                  'hour',
-          )?.value ?? 12,
-      )
+    Number(
+      parts.find(
+        (part) =>
+          part.type ===
+          'hour',
+      )?.value ?? 12,
+    )
 
   const minute =
-      Number(
-          parts.find(
-              (part) =>
-                  part.type ===
-                  'minute',
-          )?.value ?? 0,
-      )
+    Number(
+      parts.find(
+        (part) =>
+          part.type ===
+          'minute',
+      )?.value ?? 0,
+    )
 
   return (
-      hour +
-      minute / 60
+    hour +
+    minute / 60
   )
 }
 
 function interpolate(
-    value: number,
-    from: number,
-    to: number,
-    start: number,
-    end: number,
+  value: number,
+  from: number,
+  to: number,
+  start: number,
+  end: number,
 ): number {
   const progress =
-      Math.min(
-          1,
-          Math.max(
-              0,
-              (value - from) /
-              (to - from),
-          ),
-      )
+    Math.min(
+      1,
+      Math.max(
+        0,
+        (value - from) /
+        (to - from),
+      ),
+    )
 
   return (
-      start +
-      (end - start) *
-      progress
+    start +
+    (end - start) *
+    progress
   )
 }
 
 function updateMapTone() {
   const hour =
-      currentEstoniaHour()
+    currentEstoniaHour()
 
   /*
-   * Intentionally subtle.
-   *
-   * This is just atmospheric UI styling,
-   * not an astronomical day/night model.
+   * Subtle visual day/night tint.
    */
   if (
-      hour >= 8 &&
-      hour < 19
+    hour >= 8 &&
+    hour < 19
   ) {
     mapBrightness.value =
-        1
+      1
 
     return
   }
 
   if (
-      hour >= 5 &&
-      hour < 8
+    hour >= 5 &&
+    hour < 8
   ) {
     mapBrightness.value =
-        interpolate(
-            hour,
-            5,
-            8,
-            0.72,
-            1,
-        )
+      interpolate(
+        hour,
+        5,
+        8,
+        0.72,
+        1,
+      )
 
     return
   }
 
   if (
-      hour >= 19 &&
-      hour < 22
+    hour >= 19 &&
+    hour < 22
   ) {
     mapBrightness.value =
-        interpolate(
-            hour,
-            19,
-            22,
-            1,
-            0.72,
-        )
+      interpolate(
+        hour,
+        19,
+        22,
+        1,
+        0.72,
+      )
 
     return
   }
 
   mapBrightness.value =
-      0.72
+    0.72
 }
 
 function getMapPadding() {
   const width =
-      window.innerWidth
+    window.innerWidth
 
   const height =
-      window.innerHeight
+    window.innerHeight
 
   /*
-   * Leaflet requires these values as screen coordinates,
-   * so they are calculated from the viewport rather than
-   * being fixed layout values.
+   * Leaflet expects screen coordinates here,
+   * so derive them from viewport size.
    */
   const horizontal =
-      width * 0.025
+    width * 0.025
 
   const top =
-      height * 0.025
+    height * 0.025
 
+  /*
+   * Only account for the small initial dock.
+   *
+   * Once the user selects somewhere we deliberately
+   * DO NOT refit the map. User zoom/pan must remain
+   * exactly where they left it.
+   */
   const bottom =
-      height *
-      props.bottomInsetRatio
+    height * 0.13
 
   return {
     topLeft: [
@@ -248,60 +241,48 @@ function fitEstonia() {
   map.invalidateSize()
 
   const padding =
-      getMapPadding()
+    getMapPadding()
 
   map.fitBounds(
-      ESTONIA_BOUNDS,
-      {
-        paddingTopLeft:
-        padding.topLeft,
+    ESTONIA_BOUNDS,
+    {
+      paddingTopLeft:
+      padding.topLeft,
 
-        paddingBottomRight:
-        padding.bottomRight,
+      paddingBottomRight:
+      padding.bottomRight,
 
-        animate: false,
-      },
+      animate: false,
+    },
   )
 
-  /*
-   * On desktop the fit is otherwise visually one
-   * zoom step too distant.
-   */
   if (
-      window.matchMedia(
-          '(min-width: 56.25rem)',
-      ).matches
+    window.matchMedia(
+      '(min-width: 56.25rem)',
+    ).matches
   ) {
     map.setZoom(
-        map.getZoom() + 1,
-        {
-          animate: false,
-        },
+      map.getZoom() + 1,
+      {
+        animate: false,
+      },
     )
   }
 
   /*
-   * Offset north depending on how much bottom UI
-   * currently occupies the viewport.
+   * Slight northward correction for the initial view.
    */
   const center =
-      map.getCenter()
-
-  const northShift =
-      0.1 +
-      props.bottomInsetRatio *
-      0.6
+    map.getCenter()
 
   map.panTo(
-      [
-        center.lat +
-        northShift,
-
-        center.lng,
-      ],
-      {
-        animate: false,
-      },
+    [
+      center.lat + 0.18,
+      center.lng,
+    ],
+    {
+      animate: false,
+    },
   )
 }
 
@@ -314,78 +295,76 @@ function updateSelectedMarker() {
     selectedMarker?.remove()
 
     selectedMarker =
-        null
+      null
 
     return
   }
 
   const latLng =
-      L.latLng(
-          props.selectedPoint
-              .latitude,
+    L.latLng(
+      props.selectedPoint
+        .latitude,
 
-          props.selectedPoint
-              .longitude,
-      )
+      props.selectedPoint
+        .longitude,
+    )
 
   if (selectedMarker) {
     selectedMarker.setLatLng(
-        latLng,
+      latLng,
     )
 
     return
   }
 
   const icon =
-      L.divIcon({
-        className:
-            'weather-location-marker',
+    L.divIcon({
+      className:
+        'weather-location-marker',
 
-        html:
-            '<span></span>',
-      })
+      html:
+        '<span></span>',
+    })
 
   selectedMarker =
-      L.marker(
-          latLng,
-          {
-            icon,
+    L.marker(
+      latLng,
+      {
+        icon,
 
-            keyboard: false,
+        keyboard: false,
 
-            interactive:
-                false,
-          },
-      )
+        interactive:
+          false,
+      },
+    )
 
   selectedMarker.addTo(
-      map,
+    map,
   )
 }
 
 function handleResize() {
+  /*
+   * Resizing the actual browser can refit Estonia.
+   * Selecting weather cannot.
+   */
   fitEstonia()
 }
 
 watch(
-    () =>
-        props.selectedPoint,
-    () => {
-      updateSelectedMarker()
-    },
-    {
-      deep: true,
-    },
-)
-
-watch(
-    () =>
-        props.bottomInsetRatio,
-    () => {
-      window.requestAnimationFrame(
-          fitEstonia,
-      )
-    },
+  () =>
+    props.selectedPoint,
+  () => {
+    /*
+     * Only update the marker.
+     * Do NOT touch zoom or camera position.
+     */
+    updateSelectedMarker()
+  },
+  {
+    deep: true,
+  },
 )
 
 onMounted(() => {
@@ -396,98 +375,98 @@ onMounted(() => {
   updateMapTone()
 
   toneTimer =
-      window.setInterval(
-          updateMapTone,
-          10 * 60 * 1000,
-      )
+    window.setInterval(
+      updateMapTone,
+      10 * 60 * 1000,
+    )
 
   map =
-      L.map(
-          mapElement.value,
-          {
-            zoomControl:
-                false,
-
-            minZoom:
-                6,
-
-            maxZoom:
-                18,
-
-            attributionControl:
-                true,
-
-            maxBounds: [
-              [55, 17],
-              [62.5, 33],
-            ],
-
-            maxBoundsViscosity:
-                0.65,
-          },
-      )
-
-  L.tileLayer(
-      'https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.png' +
-      '?ASUTUS=OILIVUR&KESKKOND=LIVE&IS=KODUKAS',
+    L.map(
+      mapElement.value,
       {
-        tms: true,
+        zoomControl:
+          false,
 
         minZoom:
-            6,
+          6,
 
         maxZoom:
-            18,
+          18,
 
-        attribution:
-            'Ortofoto: Maa- ja Ruumiamet',
+        attributionControl:
+          true,
+
+        maxBounds: [
+          [55, 17],
+          [62.5, 33],
+        ],
+
+        maxBoundsViscosity:
+          0.65,
       },
+    )
+
+  L.tileLayer(
+    'https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.png' +
+    '?ASUTUS=OILIVUR&KESKKOND=LIVE&IS=KODUKAS',
+    {
+      tms: true,
+
+      minZoom:
+        6,
+
+      maxZoom:
+        18,
+
+      attribution:
+        'Ortofoto: Maa- ja Ruumiamet',
+    },
   ).addTo(map)
 
   L.control
-      .zoom({
-        position:
-            'topright',
-      })
-      .addTo(map)
+    .zoom({
+      position:
+        'topright',
+    })
+    .addTo(map)
 
   map.on(
-      'mousemove',
-      (event) => {
-        emit(
-            'hover',
-            {
-              latitude:
-              event.latlng.lat,
+    'mousemove',
+    (event) => {
+      emit(
+        'hover',
+        {
+          latitude:
+          event.latlng.lat,
 
-              longitude:
-              event.latlng.lng,
-            },
-        )
-      },
+          longitude:
+          event.latlng.lng,
+        },
+      )
+    },
   )
 
   map.on(
-      'mouseout',
-      () => {
-        emit('leave')
-      },
+    'mouseout',
+    () => {
+      emit('leave')
+    },
   )
 
   map.on(
-      'click',
-      (event) => {
-        emit(
-            'select',
-            {
-              latitude:
-              event.latlng.lat,
+    'click',
+    (event) => {
+      emit(
+        'select',
+        {
+          latitude:
+          event.latlng.lat,
 
-              longitude:
-              event.latlng.lng,
-            },
-        )
-      },
+          longitude:
+          event.latlng.lng,
+        },
+      )
+    },
   )
 
   fitEstonia()
@@ -495,45 +474,45 @@ onMounted(() => {
   updateSelectedMarker()
 
   window.addEventListener(
-      'resize',
-      handleResize,
+    'resize',
+    handleResize,
   )
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener(
-      'resize',
-      handleResize,
+    'resize',
+    handleResize,
   )
 
   if (
-      toneTimer !== null
+    toneTimer !== null
   ) {
     window.clearInterval(
-        toneTimer,
+      toneTimer,
     )
   }
 
   selectedMarker?.remove()
 
   selectedMarker =
-      null
+    null
 
   map?.remove()
 
   map =
-      null
+    null
 })
 </script>
 
 <template>
   <div
-      class="weather-map-shell"
+    class="weather-map-shell"
   >
     <div
-        ref="mapElement"
-        class="weather-map"
-        :style="mapStyle"
+      ref="mapElement"
+      class="weather-map"
+      :style="mapStyle"
     ></div>
   </div>
 </template>
@@ -541,58 +520,51 @@ onBeforeUnmount(() => {
 <style scoped>
 .weather-map-shell {
   position:
-      absolute;
+    absolute;
 
   inset: 0;
 }
 
 .weather-map {
-  position:
-      absolute;
+  --map-brightness: 1;
 
+  position: absolute;
   inset: 0;
 
   width: 100%;
   height: 100%;
 
-  background:
-      var(--bg);
+  background: var(--bg);
 }
 
-:deep(
-  .leaflet-tile-pane
-) {
+:deep(.leaflet-tile-pane) {
   filter:
-      brightness(
-          var(
-              --map-brightness,
-              1
-          )
-      );
+    brightness(
+      var(--map-brightness)
+    );
 
   transition:
-      filter
-      2s ease;
+    filter 2s ease;
 }
 
 :deep(
   .leaflet-control-zoom
 ) {
   overflow:
-      hidden;
+    hidden;
 
   border:
-      0.0625rem
-      solid
-      var(--border)
+    0.0625rem
+    solid
+    var(--border)
   !important;
 
   border-radius:
-      var(--radius)
+    var(--radius)
   !important;
 
   box-shadow:
-      none
+    none
   !important;
 }
 
@@ -600,34 +572,34 @@ onBeforeUnmount(() => {
   .leaflet-control-zoom a
 ) {
   display:
-      grid;
+    grid;
 
   place-items:
-      center;
+    center;
 
   width:
-      2.6rem;
+    2.6rem;
 
   height:
-      2.6rem;
+    2.6rem;
 
   color:
-      var(--text);
+    var(--text);
 
   background:
-      rgba(
-          11,
-          15,
-          18,
-          0.88
-      );
+    rgba(
+      11,
+      15,
+      18,
+      0.88
+    );
 
   border-color:
-      var(--border)
+    var(--border)
   !important;
 
   font-size:
-      1.25rem;
+    1.25rem;
 
   line-height: 1;
 }
@@ -636,51 +608,51 @@ onBeforeUnmount(() => {
   .leaflet-control-zoom a:hover
 ) {
   color:
-      var(--accent);
+    var(--accent);
 
   background:
-      var(--surface);
+    var(--surface);
 }
 
 :deep(
   .leaflet-control-attribution
 ) {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   background:
-      rgba(
-          11,
-          15,
-          18,
-          0.76
-      );
+    rgba(
+      11,
+      15,
+      18,
+      0.76
+    );
 
   font-size:
-      0.65rem;
+    0.65rem;
 }
 
 :deep(
   .weather-location-marker
 ) {
   width:
-      1.5rem
+    1.5rem
   !important;
 
   height:
-      1.5rem
+    1.5rem
   !important;
 
   margin-left:
-      -0.75rem
+    -0.75rem
   !important;
 
   margin-top:
-      -0.75rem
+    -0.75rem
   !important;
 
   background:
-      transparent;
+    transparent;
 
   border: 0;
 }
@@ -690,35 +662,35 @@ onBeforeUnmount(() => {
     span
 ) {
   display:
-      block;
+    block;
 
   width: 100%;
   height: 100%;
 
   background:
-      var(--accent);
+    var(--accent);
 
   border:
-      0.22rem
-      solid
-      rgba(
-          11,
-          15,
-          18,
-          0.9
-      );
+    0.22rem
+    solid
+    rgba(
+      11,
+      15,
+      18,
+      0.9
+    );
 
   border-radius:
-      50%;
+    50%;
 
   box-shadow:
-      0 0 0
-      0.18rem
-      rgba(
-          168,
-          255,
-          62,
-          0.32
-      );
+    0 0 0
+    0.18rem
+    rgba(
+      168,
+      255,
+      62,
+      0.32
+    );
 }
 </style>

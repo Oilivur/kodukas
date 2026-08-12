@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
 } from 'vue'
 
 import WeatherIcon from '@/components/weather/WeatherIcon.vue'
@@ -17,71 +22,114 @@ import {
 } from '@/utils/weather'
 
 const props =
-    defineProps<{
-      forecast:
-          WeatherForecast | null
+  defineProps<{
+    forecast:
+      WeatherForecast | null
 
-      selectedDate:
-          string
+    selectedDate:
+      string
 
-      loading:
-          boolean
+    loading:
+      boolean
 
-      error:
-          string | null
-    }>()
+    error:
+      string | null
+  }>()
 
 const emit =
-    defineEmits<{
-      selectDate: [
-        date: string,
-      ]
-    }>()
+  defineEmits<{
+    selectDate: [
+      date: string,
+    ]
+  }>()
+
+const hourRow =
+  ref<HTMLDivElement | null>(
+    null,
+  )
+
+const currentHourKey =
+  ref(
+    getTallinnCurrentHourKey(),
+  )
+
+let timeTimer:
+  number | null =
+  null
 
 const selectedHours =
-    computed(
-        () => {
-          if (!props.forecast) {
-            return []
-          }
+  computed(
+    () => {
+      if (!props.forecast) {
+        return []
+      }
 
-          return props.forecast
-              .hours
-              .filter(
-                  (hour) =>
-                      hour.time.startsWith(
-                          props.selectedDate,
-                      ),
-              )
-        },
-    )
+      return props.forecast
+        .hours
+        .filter(
+          (hour) =>
+            hour.time.startsWith(
+              props.selectedDate,
+            ),
+        )
+    },
+  )
+
+const selectedDay =
+  computed(
+    () => {
+      if (!props.forecast) {
+        return null
+      }
+
+      return (
+        props.forecast.days.find(
+          (day) =>
+            day.date ===
+            props.selectedDate,
+        ) ?? null
+      )
+    },
+  )
 
 const weekdayFormatter =
-    new Intl.DateTimeFormat(
-        'et-EE',
-        {
-          weekday:
-              'short',
+  new Intl.DateTimeFormat(
+    'et-EE',
+    {
+      weekday:
+        'short',
 
-          timeZone:
-              'Europe/Tallinn',
-        },
-    )
+      timeZone:
+        'Europe/Tallinn',
+    },
+  )
+
+const weekdayLongFormatter =
+  new Intl.DateTimeFormat(
+    'et-EE',
+    {
+      weekday:
+        'long',
+
+      timeZone:
+        'Europe/Tallinn',
+    },
+  )
 
 const dateFormatter =
-    new Intl.DateTimeFormat(
-        'et-EE',
-        {
-          day:
-              'numeric',
+  new Intl.DateTimeFormat(
+    'et-EE',
+    {
+      day:
+        'numeric',
 
-          month:
-              'numeric',
+      month:
+        'numeric',
 
-          timeZone:
-              'Europe/Tallinn',
-        },
-    )
+      timeZone:
+        'Europe/Tallinn',
+    },
+  )
 
 function parseDate(
   date: string,
@@ -92,44 +140,287 @@ function parseDate(
 }
 
 function weekday(
-    date: string,
+  date: string,
 ): string {
   return weekdayFormatter
-      .format(
-          parseDate(date),
-      )
-      .replace('.', '')
+    .format(
+      parseDate(date),
+    )
+    .replace('.', '')
+}
+
+function weekdayLong(
+  date: string,
+): string {
+  const value =
+    weekdayLongFormatter.format(
+      parseDate(date),
+    )
+
+  return (
+    value.charAt(0).toUpperCase() +
+    value.slice(1)
+  )
 }
 
 function shortDate(
-    date: string,
+  date: string,
 ): string {
   return dateFormatter.format(
-      parseDate(date),
+    parseDate(date),
   )
 }
 
 function hourLabel(
-    time: string,
+  time: string,
 ): string {
   return time.slice(
-      11,
-      16,
+    11,
+    16,
   )
 }
+
+function currentObservationTime(
+  time: string,
+): string {
+  /*
+   * Open-Meteo already returns this in Europe/Tallinn
+   * because that timezone is specified in weatherApi.ts.
+   */
+  return time.slice(
+    11,
+    16,
+  )
+}
+
+function getTallinnCurrentHourKey():
+  string {
+  const parts =
+    new Intl.DateTimeFormat(
+      'en-CA',
+      {
+        timeZone:
+          'Europe/Tallinn',
+
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit',
+
+        hour:
+          '2-digit',
+
+        hourCycle:
+          'h23',
+      },
+    ).formatToParts(
+      new Date(),
+    )
+
+  const year =
+    parts.find(
+      (part) =>
+        part.type ===
+        'year',
+    )?.value ?? '0000'
+
+  const month =
+    parts.find(
+      (part) =>
+        part.type ===
+        'month',
+    )?.value ?? '01'
+
+  const day =
+    parts.find(
+      (part) =>
+        part.type ===
+        'day',
+    )?.value ?? '01'
+
+  const hour =
+    parts.find(
+      (part) =>
+        part.type ===
+        'hour',
+    )?.value ?? '00'
+
+  return (
+    `${year}-${month}-${day}` +
+    `T${hour}:00`
+  )
+}
+
+function isUpcomingHour(
+  time: string,
+): boolean {
+  return (
+    time >=
+    currentHourKey.value
+  )
+}
+
+function isCurrentHour(
+  time: string,
+): boolean {
+  return (
+    time ===
+    currentHourKey.value
+  )
+}
+
+function updateCurrentTime() {
+  currentHourKey.value =
+    getTallinnCurrentHourKey()
+}
+
+function handleHourWheel(
+  event: WheelEvent,
+) {
+  const row =
+    event.currentTarget as
+      HTMLElement | null
+
+  if (
+    !row ||
+    event.ctrlKey
+  ) {
+    return
+  }
+
+  if (
+    Math.abs(
+      event.deltaY,
+    ) >
+    Math.abs(
+      event.deltaX,
+    )
+  ) {
+    event.preventDefault()
+
+    row.scrollLeft +=
+      event.deltaY
+  }
+}
+
+async function scrollHoursToRelevantTime() {
+  await nextTick()
+
+  const row =
+    hourRow.value
+
+  if (!row) {
+    return
+  }
+
+  const currentDate =
+    currentHourKey.value.slice(
+      0,
+      10,
+    )
+
+  if (
+    props.selectedDate !==
+    currentDate
+  ) {
+    row.scrollTo({
+      left: 0,
+      behavior:
+        'smooth',
+    })
+
+    return
+  }
+
+  const cards =
+    Array.from(
+      row.querySelectorAll<HTMLElement>(
+        '.hour-card',
+      ),
+    )
+
+  const currentCard =
+    cards.find(
+      (card) =>
+        card.dataset.time ===
+        currentHourKey.value,
+    )
+
+  if (!currentCard) {
+    return
+  }
+
+  const target =
+    Math.max(
+      0,
+      currentCard.offsetLeft -
+      row.clientWidth *
+      0.08,
+    )
+
+  row.scrollTo({
+    left:
+    target,
+
+    behavior:
+      'smooth',
+  })
+}
+
+watch(
+  [
+    () =>
+      props.selectedDate,
+
+    () =>
+      props.forecast,
+  ],
+  () => {
+    void scrollHoursToRelevantTime()
+  },
+)
+
+onMounted(() => {
+  updateCurrentTime()
+
+  timeTimer =
+    window.setInterval(
+      updateCurrentTime,
+      60 * 1000,
+    )
+
+  void scrollHoursToRelevantTime()
+})
+
+onBeforeUnmount(() => {
+  if (
+    timeTimer !== null
+  ) {
+    window.clearInterval(
+      timeTimer,
+    )
+  }
+})
 </script>
 
 <template>
   <section
-      class="forecast-dock"
-      :class="{
-      'forecast-dock--loaded':
-        forecast,
-    }"
+    class="forecast-dock"
   >
+    <!--
+      Only replace the whole panel with loading UI
+      when we have no previous forecast yet.
+    -->
     <div
-        v-if="loading"
-        class="forecast-message"
+      v-if="
+        loading &&
+        !forecast
+      "
+      class="forecast-message"
     >
       <span class="eyebrow">
         ILM
@@ -141,8 +432,11 @@ function hourLabel(
     </div>
 
     <div
-        v-else-if="error"
-        class="forecast-message"
+      v-else-if="
+        error &&
+        !forecast
+      "
+      class="forecast-message"
     >
       <span class="eyebrow">
         ILM
@@ -158,8 +452,8 @@ function hourLabel(
     </div>
 
     <div
-        v-else-if="!forecast"
-        class="forecast-message"
+      v-else-if="!forecast"
+      class="forecast-message"
     >
       <span class="eyebrow">
         ILM
@@ -176,259 +470,342 @@ function hourLabel(
     </div>
 
     <template v-else>
-      <header
-          class="selected-weather"
+      <!-- =========================
+           CURRENT WEATHER
+      ========================== -->
+
+      <section
+        class="current-weather-section"
       >
-        <div
-            class="selected-weather__condition"
-        >
-          <WeatherIcon
-              class="selected-weather__icon"
-              :code="
-              forecast.current.weatherCode
-            "
-              :is-day="
-              forecast.current.isDay
-            "
-          />
-
-          <div>
-            <div
-                class="selected-weather__temperature"
-            >
-              {{
-                roundTemperature(
-                    forecast.current.temperature,
-                )
-              }}
-            </div>
-
-            <strong>
-              {{
-                weatherCodeLabel(
-                    forecast.current.weatherCode,
-                )
-              }}
-            </strong>
-          </div>
-        </div>
-
-        <div
-            class="selected-weather__metrics"
+        <header
+          class="section-heading"
         >
           <span>
-            Tunne
-            {{
-              roundTemperature(
-                  forecast.current
-                      .apparentTemperature,
-              )
-            }}
+            HETKEILM
           </span>
-
-          <span>
-            Tuul
-            {{
-              forecast.current.windSpeed.toFixed(
-                  1,
-              )
-            }}
-            m/s
-            {{
-              windDirectionLabel(
-                  forecast.current.windDirection,
-              )
-            }}
-          </span>
-
-          <span>
-            Niiskus
-            {{
-              Math.round(
-                  forecast.current.relativeHumidity,
-              )
-            }}%
-          </span>
-
-          <span>
-            Pilvisus
-            {{
-              Math.round(
-                  forecast.current.cloudCover,
-              )
-            }}%
-          </span>
-
-          <span>
-            Sadu
-            {{
-              forecast.current.precipitation.toFixed(
-                  1,
-              )
-            }}
-            mm
-          </span>
-        </div>
-
-        <div
-            class="selected-weather__location"
-        >
-          <strong>
-            Valitud asukoht
-          </strong>
-
-          <span>
-            {{
-              formatCoordinate(
-                  forecast.dataPoint.latitude,
-              )
-            }}° N ·
-            {{
-              formatCoordinate(
-                  forecast.dataPoint.longitude,
-              )
-            }}° E
-          </span>
-        </div>
-      </header>
-
-      <div
-          class="week-row"
-      >
-        <article
-            v-for="
-            day in forecast.days
-          "
-            :key="day.date"
-            class="week-day"
-        >
-          <strong>
-            {{
-              weekday(
-                  day.date,
-              )
-            }}
-          </strong>
-
-          <span
-              class="week-day__date"
-          >
-            {{
-              shortDate(
-                  day.date,
-              )
-            }}
-          </span>
-
-          <WeatherIcon
-              class="week-day__icon"
-              :code="
-              day.weatherCode
-            "
-          />
 
           <div
-              class="week-day__temperatures"
+            class="section-heading__status"
           >
-            <span>
-              Päev
-              {{
-                roundTemperature(
-                    day.dayTemperature,
-                )
-              }}
+            <span
+              v-if="loading"
+              class="updating-status"
+            >
+              Uuendan…
+            </span>
+
+            <span
+              v-else-if="error"
+              class="update-error"
+            >
+              Uuendamine ebaõnnestus
             </span>
 
             <span>
-              Öö
+              Seisuga
               {{
-                roundTemperature(
-                    day.nightTemperature,
+                currentObservationTime(
+                  forecast.current.time,
                 )
               }}
             </span>
           </div>
+        </header>
 
-          <span
-              v-if="
-              day.precipitationProbability > 0
-            "
-              class="week-day__rain"
+        <div
+          class="selected-weather"
+        >
+          <div
+            class="selected-weather__condition"
           >
-            {{
-              Math.round(
-                  day.precipitationProbability,
-              )
-            }}%
-          </span>
-        </article>
-      </div>
+            <WeatherIcon
+              class="selected-weather__icon"
+              :code="
+                forecast.current.weatherCode
+              "
+              :is-day="
+                forecast.current.isDay
+              "
+            />
 
-      <div
-          class="forecast-detail"
+            <div>
+              <div
+                class="selected-weather__temperature"
+              >
+                {{
+                  roundTemperature(
+                    forecast.current.temperature,
+                  )
+                }}
+              </div>
+
+              <strong>
+                {{
+                  weatherCodeLabel(
+                    forecast.current.weatherCode,
+                  )
+                }}
+              </strong>
+            </div>
+          </div>
+
+          <div
+            class="selected-weather__metrics"
+          >
+            <span>
+              Tunne
+              {{
+                roundTemperature(
+                  forecast.current
+                    .apparentTemperature,
+                )
+              }}
+            </span>
+
+            <span>
+              Tuul
+              {{
+                forecast.current.windSpeed.toFixed(
+                  1,
+                )
+              }}
+              m/s
+              {{
+                windDirectionLabel(
+                  forecast.current.windDirection,
+                )
+              }}
+            </span>
+
+            <span>
+              Niiskus
+              {{
+                Math.round(
+                  forecast.current.relativeHumidity,
+                )
+              }}%
+            </span>
+
+            <span>
+              Pilvisus
+              {{
+                Math.round(
+                  forecast.current.cloudCover,
+                )
+              }}%
+            </span>
+
+            <span>
+              Sadu
+              {{
+                forecast.current.precipitation.toFixed(
+                  1,
+                )
+              }}
+              mm
+            </span>
+          </div>
+
+          <div
+            class="selected-weather__location"
+          >
+            <strong>
+              Valitud asukoht
+            </strong>
+
+            <span>
+              {{
+                formatCoordinate(
+                  forecast.dataPoint.latitude,
+                )
+              }}° N ·
+              {{
+                formatCoordinate(
+                  forecast.dataPoint.longitude,
+                )
+              }}° E
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================
+           WEEK FORECAST
+      ========================== -->
+
+      <section
+        class="forecast-section"
       >
-        <nav
-            class="day-selector"
-            aria-label="Vali päev"
+        <header
+          class="section-heading"
+        >
+          <span>
+            7 PÄEVA PROGNOOS
+          </span>
+        </header>
+
+        <div
+          class="week-row"
         >
           <button
-              v-for="
+            v-for="
               day in forecast.days
             "
-              :key="day.date"
-              type="button"
-              :class="{
-              active:
+            :key="day.date"
+            type="button"
+            class="week-day"
+            :class="{
+              'week-day--selected':
                 selectedDate ===
                 day.date,
             }"
-              @click="
+            :aria-pressed="
+              selectedDate ===
+              day.date
+            "
+            @click="
               emit(
                 'selectDate',
                 day.date,
               )
             "
           >
-            {{
-              weekday(
+            <strong>
+              {{
+                weekday(
                   day.date,
-              )
-            }}
+                )
+              }}
+            </strong>
 
-            <span>
+            <span
+              class="week-day__date"
+            >
               {{
                 shortDate(
-                    day.date,
+                  day.date,
                 )
               }}
             </span>
+
+            <WeatherIcon
+              class="week-day__icon"
+              :code="
+                day.weatherCode
+              "
+            />
+
+            <div
+              class="week-day__temperatures"
+            >
+              <span>
+                Päev
+                {{
+                  roundTemperature(
+                    day.dayTemperature,
+                  )
+                }}
+              </span>
+
+              <span>
+                Öö
+                {{
+                  roundTemperature(
+                    day.nightTemperature,
+                  )
+                }}
+              </span>
+            </div>
+
+            <span
+              v-if="
+                day.precipitationProbability > 0
+              "
+              class="week-day__rain"
+            >
+              {{
+                Math.round(
+                  day.precipitationProbability,
+                )
+              }}%
+            </span>
           </button>
-        </nav>
+        </div>
+      </section>
+
+      <!-- =========================
+           HOURLY FORECAST
+      ========================== -->
+
+      <section
+        class="hourly-section"
+      >
+        <header
+          v-if="selectedDay"
+          class="section-heading"
+        >
+          <span>
+            TUNNIPROGNOOS
+          </span>
+
+          <span
+            class="section-heading__day"
+          >
+            {{
+              weekdayLong(
+                selectedDay.date,
+              )
+            }},
+            {{
+              shortDate(
+                selectedDay.date,
+              )
+            }}
+          </span>
+        </header>
 
         <div
-            class="hour-row"
+          ref="hourRow"
+          class="hour-row"
+          @wheel="
+            handleHourWheel
+          "
         >
           <article
-              v-for="
+            v-for="
               hour in selectedHours
             "
-              :key="hour.time"
-              class="hour-card"
+            :key="hour.time"
+            class="hour-card"
+            :class="{
+              'hour-card--upcoming':
+                isUpcomingHour(
+                  hour.time,
+                ),
+
+              'hour-card--current':
+                isCurrentHour(
+                  hour.time,
+                ),
+            }"
+            :data-time="
+              hour.time
+            "
           >
             <time>
               {{
                 hourLabel(
-                    hour.time,
+                  hour.time,
                 )
               }}
             </time>
 
             <WeatherIcon
-                class="hour-card__icon"
-                :code="
+              class="hour-card__icon"
+              :code="
                 hour.weatherCode
               "
-                :is-day="
+              :is-day="
                 hour.isDay
               "
             />
@@ -436,7 +813,7 @@ function hourLabel(
             <strong>
               {{
                 roundTemperature(
-                    hour.temperature,
+                  hour.temperature,
                 )
               }}
             </strong>
@@ -445,7 +822,7 @@ function hourLabel(
               Vihm
               {{
                 Math.round(
-                    hour.precipitationProbability,
+                  hour.precipitationProbability,
                 )
               }}%
             </span>
@@ -453,28 +830,28 @@ function hourLabel(
             <span>
               {{
                 hour.windSpeed.toFixed(
-                    1,
+                  1,
                 )
               }}
               m/s
               {{
                 windDirectionLabel(
-                    hour.windDirection,
+                  hour.windDirection,
                 )
               }}
             </span>
           </article>
         </div>
-      </div>
+      </section>
 
       <footer
-          class="weather-source"
+        class="weather-source"
       >
         Ilmaandmed:
         <a
-            href="https://open-meteo.com/"
-            target="_blank"
-            rel="noopener noreferrer"
+          href="https://open-meteo.com/"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           Open-Meteo
         </a>
@@ -486,104 +863,203 @@ function hourLabel(
 <style scoped>
 .forecast-dock {
   position:
-      absolute;
+    absolute;
 
   left:
-      clamp(
-          0.65rem,
-          1.2vw,
-          1.3rem
-      );
+    clamp(
+      0.65rem,
+      1.2vw,
+      1.3rem
+    );
 
   right:
-      clamp(
-          0.65rem,
-          1.2vw,
-          1.3rem
-      );
+    clamp(
+      0.65rem,
+      1.2vw,
+      1.3rem
+    );
 
   bottom:
-      clamp(
-          0.65rem,
-          1.3dvh,
-          1.3rem
-      );
+    clamp(
+      0.65rem,
+      1.3dvh,
+      1.3rem
+    );
 
   z-index:
-      900;
+    900;
 
   padding:
-      clamp(
-          0.8rem,
-          1.2vw,
-          1.15rem
-      );
+    clamp(
+      0.75rem,
+      1.1vw,
+      1.05rem
+    );
 
   color:
-      var(--text);
+    var(--text);
 
   background:
-      rgba(
-          11,
-          15,
-          18,
-          0.9
-      );
+    rgba(
+      11,
+      15,
+      18,
+      0.9
+    );
 
   border:
-      0.0625rem
-      solid
-      var(--border);
+    0.0625rem
+    solid
+    var(--border);
 
   border-radius:
-      var(--radius);
+    var(--radius);
 
   backdrop-filter:
-      blur(1.1rem);
+    blur(1.1rem);
 }
 
 .forecast-message {
   display:
-      flex;
+    flex;
 
   flex-direction:
-      column;
+    column;
 
   justify-content:
-      center;
+    center;
 
   gap:
-      0.25rem;
+    0.25rem;
 
   min-height:
-      clamp(
-          3.8rem,
-          7dvh,
-          5rem
-      );
+    clamp(
+      3.8rem,
+      7dvh,
+      5rem
+    );
 }
 
 .forecast-message strong {
   font-size:
-      clamp(
-          0.95rem,
-          1vw,
-          1.1rem
-      );
+    clamp(
+      0.95rem,
+      1vw,
+      1.1rem
+    );
 }
 
 .forecast-message
 > span:last-child {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.82rem;
+    0.82rem;
+}
+
+/* -------------------------
+   Shared section headings
+------------------------- */
+
+.section-heading {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    1rem;
+
+  margin-bottom:
+    0.55rem;
+
+  color:
+    var(--text-muted);
+
+  font-size:
+    clamp(
+      0.62rem,
+      0.68vw,
+      0.74rem
+    );
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.1em;
+
+  text-transform:
+    uppercase;
+}
+
+.section-heading
+> span:first-child {
+  color:
+    var(--accent);
+}
+
+.section-heading__status {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    0.7rem;
+
+  letter-spacing:
+    normal;
+
+  text-transform:
+    none;
+}
+
+.updating-status {
+  color:
+    var(--accent);
+}
+
+.update-error {
+  color:
+    #ff9a9a;
+}
+
+.section-heading__day {
+  color:
+    var(--text-muted)
+  !important;
+
+  letter-spacing:
+    normal;
+
+  text-transform:
+    none;
+}
+
+/* -------------------------
+   Current weather
+------------------------- */
+
+.current-weather-section {
+  padding-bottom:
+    0.75rem;
+
+  border-bottom:
+    0.0625rem
+    solid
+    var(--border);
 }
 
 .selected-weather {
   display:
-      grid;
+    grid;
 
   grid-template-columns:
     auto
@@ -594,483 +1070,499 @@ function hourLabel(
     auto;
 
   align-items:
-      center;
+    center;
 
   gap:
-      clamp(
-          1rem,
-          2vw,
-          2rem
-      );
-
-  padding-bottom:
-      0.8rem;
-
-  border-bottom:
-      0.0625rem
-      solid
-      var(--border);
+    clamp(
+      1rem,
+      2vw,
+      2rem
+    );
 }
 
 .selected-weather__condition {
   display:
-      flex;
+    flex;
 
   align-items:
-      center;
+    center;
 
   gap:
-      0.7rem;
+    0.7rem;
 }
 
 .selected-weather__condition
 > div {
   display:
-      flex;
+    flex;
 
   flex-direction:
-      column;
+    column;
 
   gap:
-      0.1rem;
+    0.1rem;
 }
 
 .selected-weather__icon {
   color:
-      var(--accent);
+    var(--accent);
 
   font-size:
-      clamp(
-          2.4rem,
-          3.2vw,
-          3.4rem
-      );
+    clamp(
+      2.4rem,
+      3.2vw,
+      3.4rem
+    );
 }
 
 .selected-weather__temperature {
   font-size:
-      clamp(
-          1.8rem,
-          2.5vw,
-          2.6rem
-      );
+    clamp(
+      1.8rem,
+      2.5vw,
+      2.6rem
+    );
 
   font-weight:
-      700;
+    700;
 
   line-height:
-      0.95;
+    0.95;
 }
 
 .selected-weather__condition
 strong {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.78rem;
+    0.78rem;
 
   font-weight:
-      500;
+    500;
 }
 
 .selected-weather__metrics {
   display:
-      flex;
+    flex;
 
   flex-wrap:
-      wrap;
+    wrap;
 
   gap:
-      0.4rem
-      1.2rem;
+    0.4rem
+    1.2rem;
 
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      clamp(
-          0.75rem,
-          0.85vw,
-          0.9rem
-      );
+    clamp(
+      0.75rem,
+      0.85vw,
+      0.9rem
+    );
 }
 
 .selected-weather__location {
   display:
-      flex;
+    flex;
 
   flex-direction:
-      column;
+    column;
 
   align-items:
-      flex-end;
+    flex-end;
 
   gap:
-      0.15rem;
+    0.15rem;
 
   white-space:
-      nowrap;
+    nowrap;
 }
 
 .selected-weather__location
 strong {
   font-size:
-      0.82rem;
+    0.82rem;
 }
 
 .selected-weather__location
 span {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.72rem;
+    0.72rem;
+}
+
+/* -------------------------
+   Weekly forecast
+------------------------- */
+
+.forecast-section {
+  padding-top:
+    0.7rem;
 }
 
 .week-row {
   display:
-      grid;
+    grid;
 
   grid-template-columns:
     repeat(
       7,
       minmax(
-          0,
-          1fr
+        0,
+        1fr
       )
     );
 
   gap:
-      0.35rem;
-
-  margin-top:
-      0.75rem;
+    0.35rem;
 }
 
 .week-day {
   position:
-      relative;
+    relative;
 
   display:
-      flex;
+    flex;
 
   flex-direction:
-      column;
+    column;
 
   align-items:
-      center;
+    center;
 
   gap:
-      0.25rem;
+    0.25rem;
 
   min-width: 0;
 
   padding:
-      0.55rem
-      0.35rem;
+    0.55rem
+    0.35rem;
+
+  color:
+    var(--text);
 
   background:
-      rgba(
-          255,
-          255,
-          255,
-          0.025
-      );
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
 
   border:
-      0.0625rem
-      solid
-      transparent;
+    0.0625rem
+    solid
+    transparent;
 
   border-radius:
-      0.4rem;
+    0.4rem;
+
+  font:
+    inherit;
+
+  cursor:
+    pointer;
+
+  transition:
+    background
+    120ms ease,
+    border-color
+    120ms ease,
+    color
+    120ms ease,
+    transform
+    120ms ease;
+}
+
+/*
+ * Hover applies ONLY to unselected days.
+ */
+.week-day:not(
+  .week-day--selected
+):hover {
+  background:
+    var(--surface);
+
+  border-color:
+    var(--border);
+}
+
+.week-day:active {
+  transform:
+    translateY(
+      0.0625rem
+    );
+}
+
+/*
+ * Selected state also explicitly wins while hovered/focused.
+ */
+.week-day.week-day--selected,
+.week-day.week-day--selected:hover,
+.week-day.week-day--selected:focus-visible {
+  background:
+    var(--accent-soft);
+
+  border-color:
+    var(--accent-border);
+}
+
+.week-day.week-day--selected
+.week-day__icon {
+  color:
+    var(--accent);
 }
 
 .week-day > strong {
   text-transform:
-      uppercase;
+    uppercase;
 
   font-size:
-      0.78rem;
+    0.78rem;
 }
 
 .week-day__date {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.68rem;
+    0.68rem;
 }
 
 .week-day__icon {
   margin-block:
-      0.2rem;
+    0.2rem;
 
   color:
-      var(--accent);
+    var(--text);
 
   font-size:
-      clamp(
-          1.5rem,
-          2vw,
-          2.1rem
-      );
+    clamp(
+      1.5rem,
+      2vw,
+      2.1rem
+    );
+
+  transition:
+    color
+    120ms ease;
 }
 
 .week-day__temperatures {
   display:
-      flex;
+    flex;
 
   flex-wrap:
-      wrap;
+    wrap;
 
   justify-content:
-      center;
+    center;
 
   gap:
-      0.15rem
-      0.55rem;
+    0.15rem
+    0.55rem;
 
   font-size:
-      clamp(
-          0.68rem,
-          0.75vw,
-          0.8rem
-      );
+    clamp(
+      0.68rem,
+      0.75vw,
+      0.8rem
+    );
 }
 
 .week-day__temperatures
 span:last-child {
   color:
-      var(--text-muted);
+    var(--text-muted);
 }
 
 .week-day__rain {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.68rem;
+    0.68rem;
 }
 
-.forecast-detail {
+/* -------------------------
+   Hourly forecast
+------------------------- */
+
+.hourly-section {
   margin-top:
-      0.65rem;
+    0.7rem;
 
   padding-top:
-      0.65rem;
+    0.7rem;
 
   border-top:
-      0.0625rem
-      solid
-      var(--border);
-}
-
-.day-selector {
-  display:
-      flex;
-
-  gap:
-      0.3rem;
-
-  overflow-x:
-      auto;
-
-  padding-bottom:
-      0.45rem;
-}
-
-.day-selector button {
-  flex:
-      1 0 auto;
-
-  min-width:
-      4.2rem;
-
-  padding:
-      0.4rem
-      0.6rem;
-
-  color:
-      var(--text-muted);
-
-  background:
-      transparent;
-
-  border:
-      0.0625rem
-      solid
-      var(--border);
-
-  border-radius:
-      0.35rem;
-
-  font:
-      inherit;
-
-  font-size:
-      0.74rem;
-
-  font-weight:
-      700;
-
-  text-transform:
-      uppercase;
-
-  cursor:
-      pointer;
-
-  transition:
-      color
-      120ms ease,
-      border-color
-      120ms ease,
-      background
-      120ms ease;
-}
-
-.day-selector button span {
-  display:
-      block;
-
-  margin-top:
-      0.1rem;
-
-  font-size:
-      0.62rem;
-
-  font-weight:
-      500;
-
-  text-transform:
-      none;
-}
-
-.day-selector button:hover {
-  color:
-      var(--text);
-
-  background:
-      var(--surface);
-}
-
-.day-selector button.active {
-  color:
-      var(--accent);
-
-  background:
-      var(--accent-soft);
-
-  border-color:
-      var(--accent-border);
+    0.0625rem
+    solid
+    var(--border);
 }
 
 .hour-row {
   display:
-      flex;
+    flex;
 
   gap:
-      0.35rem;
+    0.35rem;
 
   overflow-x:
-      auto;
+    auto;
+
+  overscroll-behavior-x:
+    contain;
+
+  scroll-behavior:
+    smooth;
+
+  scrollbar-width:
+    thin;
+
+  scrollbar-color:
+    var(--border-strong)
+    transparent;
 
   padding:
-      0.15rem
-      0
-      0.4rem;
+    0.15rem
+    0
+    0.45rem;
 }
 
 .hour-card {
   flex:
-      0 0
-      clamp(
-          4.8rem,
-          6.2vw,
-          6.3rem
-      );
+    0 0
+    clamp(
+      4.8rem,
+      6.2vw,
+      6.3rem
+    );
 
   display:
-      flex;
+    flex;
 
   flex-direction:
-      column;
+    column;
 
   align-items:
-      center;
+    center;
 
   gap:
-      0.15rem;
+    0.15rem;
 
   padding:
-      0.5rem
-      0.3rem;
+    0.5rem
+    0.3rem;
 
   background:
-      var(--bg-raised);
+    var(--bg-raised);
 
   border:
-      0.0625rem
-      solid
-      var(--border);
+    0.0625rem
+    solid
+    var(--border);
 
   border-radius:
-      0.4rem;
+    0.4rem;
+
+  transition:
+    background
+    150ms ease,
+    border-color
+    150ms ease;
+}
+
+.hour-card--upcoming {
+  background:
+    var(--accent-soft);
+
+  border-color:
+    var(--accent-border);
+}
+
+.hour-card--current {
+  border-color:
+    var(--accent);
+
+  box-shadow:
+    inset
+    0
+    0
+    0
+    0.0625rem
+    var(--accent-border);
 }
 
 .hour-card time {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.7rem;
+    0.7rem;
+}
+
+.hour-card--upcoming time {
+  color:
+    var(--text);
 }
 
 .hour-card__icon {
   margin:
-      0.2rem 0;
+    0.2rem 0;
 
   color:
-      var(--accent);
+    var(--text-muted);
 
   font-size:
-      1.4rem;
+    1.4rem;
+}
+
+.hour-card--upcoming
+.hour-card__icon {
+  color:
+    var(--accent);
 }
 
 .hour-card strong {
   font-size:
-      0.95rem;
+    0.95rem;
 }
 
 .hour-card span {
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.64rem;
+    0.64rem;
 
   text-align:
-      center;
+    center;
 }
 
 .weather-source {
   margin-top:
-      0.35rem;
+    0.3rem;
 
   color:
-      var(--text-muted);
+    var(--text-muted);
 
   font-size:
-      0.58rem;
+    0.58rem;
 
   text-align:
-      right;
+    right;
 }
 
 .weather-source a:hover {
   color:
-      var(--accent);
+    var(--accent);
 }
 
 @media (
@@ -1091,16 +1583,35 @@ max-width: 50rem
 
   .week-row {
     display:
-        flex;
+      flex;
 
     overflow-x:
-        auto;
+      auto;
+
+    scrollbar-width:
+      thin;
   }
 
   .week-day {
     flex:
-        0 0
-        5.6rem;
+      0 0
+      5.6rem;
+  }
+
+  .section-heading {
+    align-items:
+      flex-start;
+  }
+
+  .section-heading__status {
+    flex-direction:
+      column;
+
+    align-items:
+      flex-end;
+
+    gap:
+      0.1rem;
   }
 }
 </style>

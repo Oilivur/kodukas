@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  computed,
   onBeforeUnmount,
   ref,
 } from 'vue'
@@ -25,132 +24,120 @@ import type {
 } from '@/types/weather'
 
 const hoverPoint =
-    ref<MapWeatherPoint | null>(
-        null,
-    )
+  ref<MapWeatherPoint | null>(
+    null,
+  )
 
 const hoverWeather =
-    ref<CurrentWeather | null>(
-        null,
-    )
+  ref<CurrentWeather | null>(
+    null,
+  )
 
 const hoverLoading =
-    ref(false)
+  ref(false)
 
 const hoverError =
-    ref<string | null>(
-        null,
-    )
+  ref<string | null>(
+    null,
+  )
 
 const selectedPoint =
-    ref<MapWeatherPoint | null>(
-        null,
-    )
+  ref<MapWeatherPoint | null>(
+    null,
+  )
 
 const selectedForecast =
-    ref<WeatherForecast | null>(
-        null,
-    )
+  ref<WeatherForecast | null>(
+    null,
+  )
 
 const selectedDate =
-    ref('')
+  ref('')
 
 const selectedLoading =
-    ref(false)
+  ref(false)
 
 const selectedError =
-    ref<string | null>(
-        null,
-    )
+  ref<string | null>(
+    null,
+  )
 
 const hoverCache =
-    new Map<
-        string,
-        CurrentWeather
-    >()
+  new Map<
+    string,
+    CurrentWeather
+  >()
 
 let hoverTimer:
-    number | null =
-    null
+  number | null =
+  null
 
 let hoverAbort:
-    AbortController | null =
-    null
+  AbortController | null =
+  null
 
 let hoverSequence =
-    0
+  0
 
 let forecastAbort:
-    AbortController | null =
-    null
+  AbortController | null =
+  null
 
-const bottomInsetRatio =
-    computed(
-        () =>
-            selectedForecast.value
-                ? 0.34
-                : 0.13,
-    )
+let forecastSequence =
+  0
 
 function hoverCacheKey(
-    point: MapWeatherPoint,
+  point: MapWeatherPoint,
 ): string {
-  /*
-   * Roughly kilometre-scale buckets.
-   *
-   * Weather model cells are themselves much larger
-   * than individual mouse pixels, so repeatedly requesting
-   * every tiny mouse movement would be pointless.
-   */
   return [
     point.latitude.toFixed(
-        2,
+      2,
     ),
 
     point.longitude.toFixed(
-        2,
+      2,
     ),
   ].join(',')
 }
 
 function clearHoverTimer() {
   if (
-      hoverTimer !== null
+    hoverTimer !== null
   ) {
     window.clearTimeout(
-        hoverTimer,
+      hoverTimer,
     )
 
     hoverTimer =
-        null
+      null
   }
 }
 
 function handleMapHover(
-    point: MapWeatherPoint,
+  point: MapWeatherPoint,
 ) {
   hoverPoint.value =
-      point
+    point
 
   hoverError.value =
-      null
+    null
 
   clearHoverTimer()
 
   const key =
-      hoverCacheKey(point)
+    hoverCacheKey(point)
 
   const cached =
-      hoverCache.get(key)
+    hoverCache.get(key)
 
   if (cached) {
     hoverAbort?.abort()
 
     hoverWeather.value =
-        cached
+      cached
 
     hoverLoading.value =
-        false
+      false
 
     return
   }
@@ -158,76 +145,76 @@ function handleMapHover(
   hoverSequence++
 
   const sequence =
-      hoverSequence
+    hoverSequence
 
   hoverWeather.value =
-      null
+    null
 
   hoverLoading.value =
-      true
+    true
 
   hoverAbort?.abort()
 
   hoverTimer =
-      window.setTimeout(
-          async () => {
-            hoverAbort =
-                new AbortController()
+    window.setTimeout(
+      async () => {
+        hoverAbort =
+          new AbortController()
 
-            try {
-              const weather =
-                  await fetchCurrentWeather(
-                      point,
-                      hoverAbort.signal,
-                  )
+        try {
+          const weather =
+            await fetchCurrentWeather(
+              point,
+              hoverAbort.signal,
+            )
 
-              if (
-                  sequence !==
-                  hoverSequence
-              ) {
-                return
-              }
+          if (
+            sequence !==
+            hoverSequence
+          ) {
+            return
+          }
 
-              hoverCache.set(
-                  key,
-                  weather,
-              )
+          hoverCache.set(
+            key,
+            weather,
+          )
 
-              hoverWeather.value =
-                  weather
+          hoverWeather.value =
+            weather
 
-              hoverLoading.value =
-                  false
-            } catch (error) {
-              if (
-                  error instanceof
-                  DOMException &&
-                  error.name ===
-                  'AbortError'
-              ) {
-                return
-              }
+          hoverLoading.value =
+            false
+        } catch (error) {
+          if (
+            error instanceof
+            DOMException &&
+            error.name ===
+            'AbortError'
+          ) {
+            return
+          }
 
-              if (
-                  sequence !==
-                  hoverSequence
-              ) {
-                return
-              }
+          if (
+            sequence !==
+            hoverSequence
+          ) {
+            return
+          }
 
-              console.error(
-                  error,
-              )
+          console.error(
+            error,
+          )
 
-              hoverLoading.value =
-                  false
+          hoverLoading.value =
+            false
 
-              hoverError.value =
-                  'Päring ebaõnnestus'
-            }
-          },
-          320,
-      )
+          hoverError.value =
+            'Päring ebaõnnestus'
+        }
+      },
+      320,
+    )
 }
 
 function handleMapLeave() {
@@ -238,84 +225,133 @@ function handleMapLeave() {
   hoverAbort?.abort()
 
   hoverPoint.value =
-      null
+    null
 
   hoverWeather.value =
-      null
+    null
 
   hoverLoading.value =
-      false
+    false
 
   hoverError.value =
-      null
+    null
 }
 
 async function handleMapSelect(
-    point: MapWeatherPoint,
+  point: MapWeatherPoint,
 ) {
+  /*
+   * Move the selected-point marker immediately,
+   * but KEEP the existing forecast visible while
+   * the new location is loading.
+   */
   selectedPoint.value =
-      point
+    point
 
   selectedLoading.value =
-      true
+    true
 
   selectedError.value =
-      null
+    null
 
-  selectedForecast.value =
-      null
+  forecastSequence++
 
-  selectedDate.value =
-      ''
+  const sequence =
+    forecastSequence
 
   forecastAbort?.abort()
 
   forecastAbort =
-      new AbortController()
+    new AbortController()
 
   try {
     const forecast =
-        await fetchWeatherForecast(
-            point,
-            forecastAbort.signal,
-        )
-
-    selectedForecast.value =
-        forecast
-
-    selectedDate.value =
-        forecast.days[0]?.date ??
-        ''
+      await fetchWeatherForecast(
+        point,
+        forecastAbort.signal,
+      )
 
     /*
-     * Reuse this current result if the user happens to
-     * hover over approximately the same place again.
+     * Ignore an old response if the user clicked
+     * somewhere else while it was loading.
      */
+    if (
+      sequence !==
+      forecastSequence
+    ) {
+      return
+    }
+
+    /*
+     * If the same calendar date exists in the new
+     * forecast, keep it selected.
+     *
+     * This means switching location while viewing
+     * Friday keeps Friday open instead of jumping
+     * back to today.
+     */
+    const previousDate =
+      selectedDate.value
+
+    const matchingDate =
+      forecast.days.some(
+        (day) =>
+          day.date ===
+          previousDate,
+      )
+
+    selectedForecast.value =
+      forecast
+
+    selectedDate.value =
+      matchingDate
+        ? previousDate
+        : (
+          forecast.days[0]
+            ?.date ?? ''
+        )
+
     hoverCache.set(
-        hoverCacheKey(
-            point,
-        ),
-        forecast.current,
+      hoverCacheKey(
+        point,
+      ),
+      forecast.current,
     )
   } catch (error) {
     if (
-        error instanceof
-        DOMException &&
-        error.name ===
-        'AbortError'
+      error instanceof
+      DOMException &&
+      error.name ===
+      'AbortError'
+    ) {
+      return
+    }
+
+    if (
+      sequence !==
+      forecastSequence
     ) {
       return
     }
 
     console.error(
-        error,
+      error,
     )
 
+    /*
+     * Existing forecast remains visible.
+     * We merely report that the requested update failed.
+     */
     selectedError.value =
-        'Ilmaandmete päring ebaõnnestus.'
+      'Uue asukoha ilmaandmeid ei saanud laadida.'
   } finally {
-    selectedLoading.value =
+    if (
+      sequence ===
+      forecastSequence
+    ) {
+      selectedLoading.value =
         false
+    }
   }
 }
 
@@ -330,63 +366,60 @@ onBeforeUnmount(() => {
 
 <template>
   <main
-      class="weather-page"
+    class="weather-page"
   >
     <WeatherMap
-        :selected-point="
+      :selected-point="
         selectedPoint
       "
-        :bottom-inset-ratio="
-        bottomInsetRatio
-      "
-        @hover="
+      @hover="
         handleMapHover
       "
-        @leave="
+      @leave="
         handleMapLeave
       "
-        @select="
+      @select="
         handleMapSelect
       "
     />
 
     <RouterLink
-        class="weather-home"
-        to="/"
-        aria-label="Tagasi avalehele"
+      class="weather-home"
+      to="/"
+      aria-label="Tagasi avalehele"
     >
       ←
     </RouterLink>
 
     <WeatherHoverCard
-        :point="
+      :point="
         hoverPoint
       "
-        :weather="
+      :weather="
         hoverWeather
       "
-        :loading="
+      :loading="
         hoverLoading
       "
-        :error="
+      :error="
         hoverError
       "
     />
 
     <WeatherForecastDock
-        :forecast="
+      :forecast="
         selectedForecast
       "
-        :selected-date="
+      :selected-date="
         selectedDate
       "
-        :loading="
+      :loading="
         selectedLoading
       "
-        :error="
+      :error="
         selectedError
       "
-        @select-date="
+      @select-date="
         selectedDate = $event
       "
     />
@@ -396,102 +429,102 @@ onBeforeUnmount(() => {
 <style scoped>
 .weather-page {
   position:
-      relative;
+    relative;
 
   width: 100%;
 
   height:
-      100dvh;
+    100dvh;
 
   overflow:
-      hidden;
+    hidden;
 
   background:
-      var(--bg);
+    var(--bg);
 }
 
 .weather-home {
   position:
-      absolute;
+    absolute;
 
   top:
-      clamp(
-          0.65rem,
-          1.8dvh,
-          1.25rem
-      );
+    clamp(
+      0.65rem,
+      1.8dvh,
+      1.25rem
+    );
 
   left:
-      clamp(
-          0.65rem,
-          1.2vw,
-          1.25rem
-      );
+    clamp(
+      0.65rem,
+      1.2vw,
+      1.25rem
+    );
 
   z-index:
-      1000;
+    1000;
 
   display:
-      grid;
+    grid;
 
   place-items:
-      center;
+    center;
 
   width:
-      clamp(
-          2.6rem,
-          3vw,
-          3.1rem
-      );
+    clamp(
+      2.6rem,
+      3vw,
+      3.1rem
+    );
 
   aspect-ratio: 1;
 
   color:
-      var(--text);
+    var(--text);
 
   background:
-      rgba(
-          11,
-          15,
-          18,
-          0.88
-      );
+    rgba(
+      11,
+      15,
+      18,
+      0.88
+    );
 
   border:
-      0.0625rem
-      solid
-      var(--border);
+    0.0625rem
+    solid
+    var(--border);
 
   border-radius:
-      var(--radius);
+    var(--radius);
 
   backdrop-filter:
-      blur(0.9rem);
+    blur(0.9rem);
 
   font-size:
-      clamp(
-          1.1rem,
-          1.4vw,
-          1.4rem
-      );
+    clamp(
+      1.1rem,
+      1.4vw,
+      1.4rem
+    );
 
   transition:
-      color
-      120ms ease,
-      border-color
-      120ms ease,
-      background
-      120ms ease;
+    color
+    120ms ease,
+    border-color
+    120ms ease,
+    background
+    120ms ease;
 }
 
 .weather-home:hover {
   color:
-      var(--accent);
+    var(--accent);
 
   background:
-      var(--surface);
+    var(--surface);
 
   border-color:
-      var(--accent-border);
+    var(--accent-border);
 }
 </style>

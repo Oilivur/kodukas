@@ -84,24 +84,10 @@ const dateFormatter =
     )
 
 function parseDate(
-    date: string,
+  date: string,
 ): Date {
-  const [
-    year,
-    month,
-    day,
-  ] =
-      date
-          .split('-')
-          .map(Number)
-
   return new Date(
-      Date.UTC(
-          year,
-          month - 1,
-          day,
-          12,
-      ),
+    `${date}T12:00:00Z`,
   )
 }
 

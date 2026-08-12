@@ -254,50 +254,100 @@ function mapCurrentWeather(
     }
 }
 
+function requiredAt<T>(
+  values: readonly T[],
+  index: number,
+  fieldName: string,
+): T {
+    const value =
+      values[index]
+
+    if (value === undefined) {
+        throw new Error(
+          `Weather API response is missing ${fieldName} at index ${index}`,
+        )
+    }
+
+    return value
+}
+
 function mapHours(
-    response: OpenMeteoForecastResponse,
+  response: OpenMeteoForecastResponse,
 ): WeatherHour[] {
     return response.hourly.time.map(
-        (time, index) => ({
-            time,
+      (time, index) => ({
+          time,
 
-            temperature:
-                response.hourly
-                    .temperature_2m[index],
+          temperature:
+            requiredAt(
+              response.hourly
+                .temperature_2m,
+              index,
+              'hourly.temperature_2m',
+            ),
 
-            apparentTemperature:
-                response.hourly
-                    .apparent_temperature[index],
+          apparentTemperature:
+            requiredAt(
+              response.hourly
+                .apparent_temperature,
+              index,
+              'hourly.apparent_temperature',
+            ),
 
-            precipitationProbability:
-                response.hourly
-                    .precipitation_probability[index]
-                ?? 0,
+          precipitationProbability:
+            response.hourly
+              .precipitation_probability[
+              index
+              ] ?? 0,
 
-            precipitation:
-                response.hourly
-                    .precipitation[index],
+          precipitation:
+            requiredAt(
+              response.hourly
+                .precipitation,
+              index,
+              'hourly.precipitation',
+            ),
 
-            weatherCode:
-                response.hourly
-                    .weather_code[index],
+          weatherCode:
+            requiredAt(
+              response.hourly
+                .weather_code,
+              index,
+              'hourly.weather_code',
+            ),
 
-            cloudCover:
-                response.hourly
-                    .cloud_cover[index],
+          cloudCover:
+            requiredAt(
+              response.hourly
+                .cloud_cover,
+              index,
+              'hourly.cloud_cover',
+            ),
 
-            windSpeed:
-                response.hourly
-                    .wind_speed_10m[index],
+          windSpeed:
+            requiredAt(
+              response.hourly
+                .wind_speed_10m,
+              index,
+              'hourly.wind_speed_10m',
+            ),
 
-            windDirection:
-                response.hourly
-                    .wind_direction_10m[index],
+          windDirection:
+            requiredAt(
+              response.hourly
+                .wind_direction_10m,
+              index,
+              'hourly.wind_direction_10m',
+            ),
 
-            isDay:
-                response.hourly
-                    .is_day[index] === 1,
-        }),
+          isDay:
+            requiredAt(
+              response.hourly
+                .is_day,
+              index,
+              'hourly.is_day',
+            ) === 1,
+      }),
     )
 }
 
@@ -379,64 +429,88 @@ function getDayNightTemperatures(
 }
 
 function mapDays(
-    response: OpenMeteoForecastResponse,
-    hours: WeatherHour[],
+  response: OpenMeteoForecastResponse,
+  hours: WeatherHour[],
 ): WeatherDay[] {
     return response.daily.time.map(
-        (date, index) => {
-            const maximumTemperature =
+      (date, index) => {
+          const maximumTemperature =
+            requiredAt(
+              response.daily
+                .temperature_2m_max,
+              index,
+              'daily.temperature_2m_max',
+            )
+
+          const minimumTemperature =
+            requiredAt(
+              response.daily
+                .temperature_2m_min,
+              index,
+              'daily.temperature_2m_min',
+            )
+
+          const {
+              dayTemperature,
+              nightTemperature,
+          } =
+            getDayNightTemperatures(
+              date,
+              hours,
+              maximumTemperature,
+              minimumTemperature,
+            )
+
+          return {
+              date,
+
+              weatherCode:
+                requiredAt(
+                  response.daily
+                    .weather_code,
+                  index,
+                  'daily.weather_code',
+                ),
+
+              dayTemperature,
+
+              nightTemperature,
+
+              maximumTemperature,
+
+              minimumTemperature,
+
+              precipitationProbability:
                 response.daily
-                    .temperature_2m_max[index]
+                  .precipitation_probability_max[
+                  index
+                  ] ?? 0,
 
-            const minimumTemperature =
-                response.daily
-                    .temperature_2m_min[index]
+              precipitation:
+                requiredAt(
+                  response.daily
+                    .precipitation_sum,
+                  index,
+                  'daily.precipitation_sum',
+                ),
 
-            const {
-                dayTemperature,
-                nightTemperature,
-            } =
-                getDayNightTemperatures(
-                    date,
-                    hours,
-                    maximumTemperature,
-                    minimumTemperature,
-                )
+              sunrise:
+                requiredAt(
+                  response.daily
+                    .sunrise,
+                  index,
+                  'daily.sunrise',
+                ),
 
-            return {
-                date,
-
-                weatherCode:
-                    response.daily
-                        .weather_code[index],
-
-                dayTemperature,
-
-                nightTemperature,
-
-                maximumTemperature,
-
-                minimumTemperature,
-
-                precipitationProbability:
-                    response.daily
-                        .precipitation_probability_max[
-                        index
-                        ] ?? 0,
-
-                precipitation:
-                    response.daily
-                        .precipitation_sum[index],
-
-                sunrise:
-                    response.daily
-                        .sunrise[index],
-
-                sunset:
-                    response.daily
-                        .sunset[index],
-            }
-        },
+              sunset:
+                requiredAt(
+                  response.daily
+                    .sunset,
+                  index,
+                  'daily.sunset',
+                ),
+          }
+      },
     )
 }
 

@@ -172,7 +172,7 @@ export function weatherCodeLabel(
 }
 
 export function windDirectionLabel(
-    degrees: number,
+  degrees: number,
 ): string {
     const directions = [
         'N',
@@ -183,18 +183,21 @@ export function windDirectionLabel(
         'SW',
         'W',
         'NW',
-    ]
+    ] as const
 
     const normalized =
-        ((degrees % 360) + 360) %
-        360
+      ((degrees % 360) + 360) %
+      360
 
     const index =
-        Math.round(
-            normalized / 45,
-        ) % 8
+      Math.round(
+        normalized / 45,
+      ) % directions.length
 
-    return directions[index]
+    return (
+      directions[index] ??
+      'N'
+    )
 }
 
 export function roundTemperature(

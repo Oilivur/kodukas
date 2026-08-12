@@ -11,6 +11,10 @@ import {
 import WeatherIcon from '@/components/weather/WeatherIcon.vue'
 
 import type {
+  LocationName,
+} from '@/types/location'
+
+import type {
   WeatherForecast,
 } from '@/types/weather'
 
@@ -25,6 +29,9 @@ const props =
   defineProps<{
     forecast:
       WeatherForecast | null
+
+    location:
+      LocationName | null
 
     selectedDate:
       string
@@ -183,10 +190,6 @@ function hourLabel(
 function currentObservationTime(
   time: string,
 ): string {
-  /*
-   * Open-Meteo already returns this in Europe/Tallinn
-   * because that timezone is specified in weatherApi.ts.
-   */
   return time.slice(
     11,
     16,
@@ -329,6 +332,7 @@ async function scrollHoursToRelevantTime() {
   ) {
     row.scrollTo({
       left: 0,
+
       behavior:
         'smooth',
     })
@@ -357,6 +361,7 @@ async function scrollHoursToRelevantTime() {
   const target =
     Math.max(
       0,
+
       currentCard.offsetLeft -
       row.clientWidth *
       0.08,
@@ -411,10 +416,6 @@ onBeforeUnmount(() => {
   <section
     class="forecast-dock"
   >
-    <!--
-      Only replace the whole panel with loading UI
-      when we have no previous forecast yet.
-    -->
     <div
       v-if="
         loading &&
@@ -452,7 +453,9 @@ onBeforeUnmount(() => {
     </div>
 
     <div
-      v-else-if="!forecast"
+      v-else-if="
+        !forecast
+      "
       class="forecast-message"
     >
       <span class="eyebrow">
@@ -470,9 +473,7 @@ onBeforeUnmount(() => {
     </div>
 
     <template v-else>
-      <!-- =========================
-           CURRENT WEATHER
-      ========================== -->
+      <!-- CURRENT WEATHER -->
 
       <section
         class="current-weather-section"
@@ -609,11 +610,33 @@ onBeforeUnmount(() => {
           <div
             class="selected-weather__location"
           >
+            <span
+              class="selected-weather__location-label"
+            >
+              ASUKOHT
+            </span>
+
             <strong>
-              Valitud asukoht
+              {{
+                location?.primary ??
+                'Valitud asukoht'
+              }}
             </strong>
 
-            <span>
+            <span
+              v-if="
+                location?.secondary
+              "
+              class="selected-weather__region"
+            >
+              {{
+                location.secondary
+              }}
+            </span>
+
+            <span
+              class="selected-weather__coordinates"
+            >
               {{
                 formatCoordinate(
                   forecast.dataPoint.latitude,
@@ -629,9 +652,7 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <!-- =========================
-           WEEK FORECAST
-      ========================== -->
+      <!-- WEEK -->
 
       <section
         class="forecast-section"
@@ -651,7 +672,9 @@ onBeforeUnmount(() => {
             v-for="
               day in forecast.days
             "
-            :key="day.date"
+            :key="
+              day.date
+            "
             type="button"
             class="week-day"
             :class="{
@@ -719,7 +742,8 @@ onBeforeUnmount(() => {
 
             <span
               v-if="
-                day.precipitationProbability > 0
+                day.precipitationProbability >
+                0
               "
               class="week-day__rain"
             >
@@ -733,15 +757,15 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <!-- =========================
-           HOURLY FORECAST
-      ========================== -->
+      <!-- HOURLY -->
 
       <section
         class="hourly-section"
       >
         <header
-          v-if="selectedDay"
+          v-if="
+            selectedDay
+          "
           class="section-heading"
         >
           <span>
@@ -775,7 +799,9 @@ onBeforeUnmount(() => {
             v-for="
               hour in selectedHours
             "
-            :key="hour.time"
+            :key="
+              hour.time
+            "
             class="hour-card"
             :class="{
               'hour-card--upcoming':
@@ -862,8 +888,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .forecast-dock {
-  position:
-    absolute;
+  position: absolute;
 
   left:
     clamp(
@@ -886,8 +911,7 @@ onBeforeUnmount(() => {
       1.3rem
     );
 
-  z-index:
-    900;
+  z-index: 900;
 
   padding:
     clamp(
@@ -920,17 +944,11 @@ onBeforeUnmount(() => {
 }
 
 .forecast-message {
-  display:
-    flex;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
-  flex-direction:
-    column;
-
-  justify-content:
-    center;
-
-  gap:
-    0.25rem;
+  gap: 0.25rem;
 
   min-height:
     clamp(
@@ -958,22 +976,16 @@ onBeforeUnmount(() => {
     0.82rem;
 }
 
-/* -------------------------
-   Shared section headings
-------------------------- */
+/* Headings */
 
 .section-heading {
-  display:
-    flex;
+  display: flex;
 
-  align-items:
-    center;
-
+  align-items: center;
   justify-content:
     space-between;
 
-  gap:
-    1rem;
+  gap: 1rem;
 
   margin-bottom:
     0.55rem;
@@ -988,8 +1000,7 @@ onBeforeUnmount(() => {
       0.74rem
     );
 
-  font-weight:
-    700;
+  font-weight: 700;
 
   letter-spacing:
     0.1em;
@@ -1005,14 +1016,11 @@ onBeforeUnmount(() => {
 }
 
 .section-heading__status {
-  display:
-    flex;
+  display: flex;
 
-  align-items:
-    center;
+  align-items: center;
 
-  gap:
-    0.7rem;
+  gap: 0.7rem;
 
   letter-spacing:
     normal;
@@ -1043,9 +1051,7 @@ onBeforeUnmount(() => {
     none;
 }
 
-/* -------------------------
-   Current weather
-------------------------- */
+/* Current */
 
 .current-weather-section {
   padding-bottom:
@@ -1058,8 +1064,7 @@ onBeforeUnmount(() => {
 }
 
 .selected-weather {
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     auto
@@ -1081,8 +1086,7 @@ onBeforeUnmount(() => {
 }
 
 .selected-weather__condition {
-  display:
-    flex;
+  display: flex;
 
   align-items:
     center;
@@ -1093,8 +1097,7 @@ onBeforeUnmount(() => {
 
 .selected-weather__condition
 > div {
-  display:
-    flex;
+  display: flex;
 
   flex-direction:
     column;
@@ -1143,8 +1146,7 @@ strong {
 }
 
 .selected-weather__metrics {
-  display:
-    flex;
+  display: flex;
 
   flex-wrap:
     wrap;
@@ -1165,8 +1167,7 @@ strong {
 }
 
 .selected-weather__location {
-  display:
-    flex;
+  display: flex;
 
   flex-direction:
     column;
@@ -1175,30 +1176,66 @@ strong {
     flex-end;
 
   gap:
-    0.15rem;
+    0.12rem;
+
+  min-width:
+    clamp(
+      9rem,
+      13vw,
+      13rem
+    );
 
   white-space:
     nowrap;
 }
 
-.selected-weather__location
-strong {
+.selected-weather__location-label {
+  color:
+    var(--accent);
+
   font-size:
-    0.82rem;
+    0.6rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.1em;
 }
 
 .selected-weather__location
-span {
+strong {
+  margin-top:
+    0.08rem;
+
+  font-size:
+    clamp(
+      0.82rem,
+      0.9vw,
+      1rem
+    );
+}
+
+.selected-weather__region {
   color:
     var(--text-muted);
 
   font-size:
-    0.72rem;
+    0.7rem;
 }
 
-/* -------------------------
-   Weekly forecast
-------------------------- */
+.selected-weather__coordinates {
+  color:
+    var(--text-muted);
+
+  font-size:
+    0.64rem;
+
+  opacity:
+    0.75;
+}
+
+/* Weekly */
 
 .forecast-section {
   padding-top:
@@ -1206,8 +1243,7 @@ span {
 }
 
 .week-row {
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     repeat(
@@ -1226,8 +1262,7 @@ span {
   position:
     relative;
 
-  display:
-    flex;
+  display: flex;
 
   flex-direction:
     column;
@@ -1263,11 +1298,9 @@ span {
   border-radius:
     0.4rem;
 
-  font:
-    inherit;
+  font: inherit;
 
-  cursor:
-    pointer;
+  cursor: pointer;
 
   transition:
     background
@@ -1280,9 +1313,6 @@ span {
     120ms ease;
 }
 
-/*
- * Hover applies ONLY to unselected days.
- */
 .week-day:not(
   .week-day--selected
 ):hover {
@@ -1300,9 +1330,6 @@ span {
     );
 }
 
-/*
- * Selected state also explicitly wins while hovered/focused.
- */
 .week-day.week-day--selected,
 .week-day.week-day--selected:hover,
 .week-day.week-day--selected:focus-visible {
@@ -1355,8 +1382,7 @@ span {
 }
 
 .week-day__temperatures {
-  display:
-    flex;
+  display: flex;
 
   flex-wrap:
     wrap;
@@ -1390,9 +1416,7 @@ span:last-child {
     0.68rem;
 }
 
-/* -------------------------
-   Hourly forecast
-------------------------- */
+/* Hourly */
 
 .hourly-section {
   margin-top:
@@ -1408,8 +1432,7 @@ span:last-child {
 }
 
 .hour-row {
-  display:
-    flex;
+  display: flex;
 
   gap:
     0.35rem;
@@ -1445,8 +1468,7 @@ span:last-child {
       6.3rem
     );
 
-  display:
-    flex;
+  display: flex;
 
   flex-direction:
     column;
@@ -1578,7 +1600,8 @@ max-width: 50rem
   }
 
   .selected-weather__location {
-    display: none;
+    display:
+      none;
   }
 
   .week-row {

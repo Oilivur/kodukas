@@ -13,9 +13,17 @@ import WeatherHoverCard from '@/components/weather/WeatherHoverCard.vue'
 import WeatherMap from '@/components/weather/WeatherMap.vue'
 
 import {
+  reverseGeocodeLocation,
+} from '@/services/locationApi'
+
+import {
   fetchCurrentWeather,
   fetchWeatherForecast,
 } from '@/services/weatherApi'
+
+import type {
+  LocationName,
+} from '@/types/location'
 
 import type {
   CurrentWeather,
@@ -48,6 +56,11 @@ const selectedPoint =
 
 const selectedForecast =
   ref<WeatherForecast | null>(
+    null,
+  )
+
+const selectedLocation =
+  ref<LocationName | null>(
     null,
   )
 
@@ -241,9 +254,10 @@ async function handleMapSelect(
   point: MapWeatherPoint,
 ) {
   /*
-   * Move the selected-point marker immediately,
-   * but KEEP the existing forecast visible while
-   * the new location is loading.
+   * Move marker immediately.
+   *
+   * Existing bottom-panel data remains visible while
+   * the requested location is loading.
    */
   selectedPoint.value =
     point
@@ -264,17 +278,45 @@ async function handleMapSelect(
   forecastAbort =
     new AbortController()
 
+  /*
+   * Start location lookup immediately, but do not allow
+   * reverse-geocoding failure to break weather loading.
+   */
+  const locationPromise =
+    reverseGeocodeLocation(
+      point,
+      forecastAbort.signal,
+    ).catch(
+      (error) => {
+        if (
+          error instanceof
+          DOMException &&
+          error.name ===
+          'AbortError'
+        ) {
+          throw error
+        }
+
+        console.warn(
+          'Location lookup failed',
+          error,
+        )
+
+        return null
+      },
+    )
+
   try {
+    /*
+     * Weather remains the important request.
+     * We do not wait for location naming before starting it.
+     */
     const forecast =
       await fetchWeatherForecast(
         point,
         forecastAbort.signal,
       )
 
-    /*
-     * Ignore an old response if the user clicked
-     * somewhere else while it was loading.
-     */
     if (
       sequence !==
       forecastSequence
@@ -282,14 +324,6 @@ async function handleMapSelect(
       return
     }
 
-    /*
-     * If the same calendar date exists in the new
-     * forecast, keep it selected.
-     *
-     * This means switching location while viewing
-     * Friday keeps Friday open instead of jumping
-     * back to today.
-     */
     const previousDate =
       selectedDate.value
 
@@ -300,6 +334,9 @@ async function handleMapSelect(
           previousDate,
       )
 
+    /*
+     * Swap the weather data in place.
+     */
     selectedForecast.value =
       forecast
 
@@ -311,12 +348,40 @@ async function handleMapSelect(
             ?.date ?? ''
         )
 
+    /*
+     * Until the new place name has resolved, remove the
+     * previous name so we never pair an old city name with
+     * the new weather data.
+     *
+     * Coordinates remain available as the fallback.
+     */
+    selectedLocation.value =
+      null
+
     hoverCache.set(
       hoverCacheKey(
         point,
       ),
       forecast.current,
     )
+
+    /*
+     * The location request was already running in parallel,
+     * so in normal circumstances this should resolve almost
+     * immediately after the forecast.
+     */
+    const location =
+      await locationPromise
+
+    if (
+      sequence !==
+      forecastSequence
+    ) {
+      return
+    }
+
+    selectedLocation.value =
+      location
   } catch (error) {
     if (
       error instanceof
@@ -338,10 +403,6 @@ async function handleMapSelect(
       error,
     )
 
-    /*
-     * Existing forecast remains visible.
-     * We merely report that the requested update failed.
-     */
     selectedError.value =
       'Uue asukoha ilmaandmeid ei saanud laadida.'
   } finally {
@@ -409,6 +470,9 @@ onBeforeUnmount(() => {
     <WeatherForecastDock
       :forecast="
         selectedForecast
+      "
+      :location="
+        selectedLocation
       "
       :selected-date="
         selectedDate

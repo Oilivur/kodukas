@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '@/views/HomeView.vue'
 import WeatherView from '@/views/WeatherView.vue'
+import TagEditorView from '@/views/TagEditorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,6 +17,11 @@ const router = createRouter({
       path: '/weather',
       name: 'weather',
       component: WeatherView,
+    },
+    {
+      path: '/tag-editor',
+      name: 'tag-editor',
+      component: TagEditorView,
     },
   ],
 })

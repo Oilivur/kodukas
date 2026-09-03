@@ -132,9 +132,11 @@ function refreshPreviews() {
 function selectTrack(
   index: number,
 ) {
+  const track = tracks.value[index]
+
   if (
     busy.value ||
-    !tracks.value[index]
+    !track
   ) {
     return
   }
@@ -143,10 +145,8 @@ function selectTrack(
   refreshPreviews()
 
   setStatus(
-    tracks.value[index]
-      .readWarning,
-    tracks.value[index]
-      .readWarning
+    track.readWarning,
+    track.readWarning
       ? 'warning'
       : 'neutral',
   )
@@ -159,7 +159,7 @@ function trackNumberLabel(
   return (
     track.trackNumber
       .split('/')[0]
-      .trim() ||
+      ?.trim() ||
     String(index + 1)
   )
 }
@@ -598,13 +598,15 @@ async function downloadAll() {
     )
 
   if (invalidIndex >= 0) {
-    selectTrack(invalidIndex)
+    const invalidTrack = tracks.value[invalidIndex]
 
-    await showValidation(
-      tracks.value[
-        invalidIndex
-      ],
-    )
+    if (invalidTrack) {
+      selectTrack(invalidIndex)
+
+      await showValidation(
+        invalidTrack,
+      )
+    }
 
     return
   }

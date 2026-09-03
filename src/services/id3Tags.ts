@@ -97,12 +97,17 @@ function filenameDetails(
     )
 
   if (numbered) {
-    return {
-      title:
-        numbered[2].trim(),
-      trackNumber: String(
-        Number(numbered[1]),
-      ),
+    const trackNumber = numbered[1]
+
+    const title = numbered[2]
+
+    if (trackNumber && title) {
+      return {
+        title: title.trim(),
+        trackNumber: String(
+          Number(trackNumber),
+        ),
+      }
     }
   }
 

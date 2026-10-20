@@ -1,44 +1,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  RouterLink,
-  RouterView,
-  useRoute,
-} from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 
 const route = useRoute()
-
-const fullScreenView =
-    computed(
-        () =>
-            route.name ===
-            'weather',
-    )
+const fullScreenView = computed(() =>
+  route.name === 'weather' || route.name === 'discgolf',
+)
 </script>
 
 <template>
   <div class="app">
-    <header
-        v-if="!fullScreenView"
-        class="site-header"
-    >
-      <RouterLink
-          to="/"
-          class="site-brand"
-      >
-        <span
-            class="site-brand-mark"
-        ></span>
+    <header v-if="!fullScreenView" class="site-header">
+      <RouterLink to="/" class="site-brand">
+        <span class="site-brand-mark"></span>
       </RouterLink>
 
       <nav class="site-nav">
-        <RouterLink to="/">
-          Kodu
-        </RouterLink>
-
-        <RouterLink to="/weather">
-          Ilm
-        </RouterLink>
+        <RouterLink to="/">Kodu</RouterLink>
+        <RouterLink to="/weather">Ilm</RouterLink>
+        <RouterLink to="/discgolf">Discgolf</RouterLink>
       </nav>
     </header>
 

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "courses:update": "node scripts/update-discgolf.mjs"
   },
   "dependencies": {
     "browser-id3-writer": "^6.4.0",
@@ -25,6 +26,7 @@
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
+    "cheerio": "^1.2.0",
     "npm-run-all2": "^9.0.2",
     "prettier": "3.9.5",
     "typescript": "~6.0.0",

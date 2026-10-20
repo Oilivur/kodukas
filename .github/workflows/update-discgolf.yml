@@ -1,0 +1,36 @@
+name: Update disc golf course map
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every Monday at 05:27 UTC (instead of daily).
+    - cron: '27 5 * * 1'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: discgolf-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Refresh Metrix and OSM course locations
+        run: npm run courses:update
+      - name: Commit updated snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/discgolf-courses.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Estonian disc golf course data"
+            git push
+          fi

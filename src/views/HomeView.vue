@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {
-  RouterLink,
-} from 'vue-router'
+import { RouterLink } from 'vue-router'
 import PanelBox from '@/components/PanelBox.vue'
 </script>
 
@@ -14,30 +12,14 @@ import PanelBox from '@/components/PanelBox.vue'
     <div class="panel-grid">
       <PanelBox title="Discgolf">
         <div class="link-list">
-          <a
-            class="site-link"
-            href="https://discgolf.ee/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+
+          <a class="site-link" href="https://discgolf.ee/" target="_blank" rel="noopener noreferrer">
             discgolf.ee
           </a>
-
-          <a
-            class="site-link"
-            href="https://thuledg.ee/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a class="site-link" href="https://thuledg.ee/" target="_blank" rel="noopener noreferrer">
             thuledg.ee
           </a>
-
-          <a
-            class="site-link"
-            href="https://discgolfar.ee/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a class="site-link" href="https://discgolfar.ee/" target="_blank" rel="noopener noreferrer">
             discgolfar.ee
           </a>
         </div>
@@ -45,57 +27,12 @@ import PanelBox from '@/components/PanelBox.vue'
 
       <PanelBox title="Lingid">
         <div class="link-list">
-          <a
-            class="site-link"
-            href="https://www.youtube.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            YouTube
-          </a>
-
-          <a
-            class="site-link"
-            href="https://www.lhv.ee"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LHV
-          </a>
-
-          <a
-            class="site-link"
-            href="https://ww-fmovies.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Filmid
-          </a>
-
-          <a
-            class="site-link"
-            href="https://en.fmoviesz-to.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Filmid II
-          </a>
-
-          <a
-            class="site-link"
-            href="https://oilivur.github.io/soiduplaanid/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Sõiduplaanid
-          </a>
-
-          <RouterLink
-            class="site-link site-link--internal"
-            to="/tag-editor"
-          >
-            MP3 Tag Editor
-          </RouterLink>
+          <a class="site-link" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">YouTube</a>
+          <a class="site-link" href="https://www.lhv.ee" target="_blank" rel="noopener noreferrer">lhv.ee</a>
+          <a class="site-link" href="https://ww-fmovies.com" target="_blank" rel="noopener noreferrer">Filmid</a>
+          <a class="site-link" href="https://en.fmoviesz-to.com" target="_blank" rel="noopener noreferrer">Filmid II</a>
+          <a class="site-link" href="https://oilivur.github.io/soiduplaanid/" target="_blank" rel="noopener noreferrer">Sõiduplaanid</a>
+          <RouterLink class="site-link site-link--internal" to="/tag-editor">MP3 Tag Editor</RouterLink>
         </div>
       </PanelBox>
     </div>
@@ -103,12 +40,6 @@ import PanelBox from '@/components/PanelBox.vue'
 </template>
 
 <style scoped>
-.site-link--internal::after {
-  content: "→";
-}
-
-.site-link--internal:hover::after {
-  transform:
-    translateX(0.125rem);
-}
+.site-link--internal::after { content: "→"; }
+.site-link--internal:hover::after { transform: translateX(0.125rem); }
 </style>

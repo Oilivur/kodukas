@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-20T02:42:43.078Z",
+  "updatedAt": "2026-10-26T11:20:25.630Z",
   "sources": [
     "https://discgolfmetrix.com/api.php?content=courses_list&country_code=EE",
     "https://www.openstreetmap.org/copyright"
@@ -314,7 +314,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/553",
-      "osmUrl": "https://www.openstreetmap.org/node/3750852149"
+      "osmUrl": null
     },
     {
       "id": "metrix:33028",
@@ -452,7 +452,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/38908",
-      "osmUrl": "https://www.openstreetmap.org/node/12745015288"
+      "osmUrl": null
     },
     {
       "id": "metrix:11414",
@@ -1147,19 +1147,6 @@
       "osmUrl": null
     },
     {
-      "id": "osm:way/828765751",
-      "name": "Coolbet Järve Discgolfi park",
-      "latitude": 59.3803138,
-      "longitude": 24.7478882,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/way/828765751"
-    },
-    {
       "id": "metrix:32360",
       "name": "D 1x12",
       "latitude": 59.416809691168424,
@@ -1290,13 +1277,13 @@
       "longitude": 24.64428024486122,
       "county": "Harju Maakond",
       "locality": "Tallinn",
-      "status": "closed",
-      "endDate": "2026-10-10",
+      "status": "active",
+      "endDate": null,
       "layouts": [
         {
           "id": "31598",
           "name": "Discgolf.ee putiralli - 63 korvi",
-          "endedAt": "2026-10-10"
+          "endedAt": "2026-11-07"
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/31598",
@@ -1475,7 +1462,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/9227",
-      "osmUrl": "https://www.openstreetmap.org/way/1019843121"
+      "osmUrl": null
     },
     {
       "id": "metrix:18395",
@@ -1716,19 +1703,6 @@
       "osmUrl": null
     },
     {
-      "id": "osm:node/12748083339",
-      "name": "Ebavere Discgolfipark",
-      "latitude": 59.1049364,
-      "longitude": 26.2303726,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/12748083339"
-    },
-    {
       "id": "metrix:14693",
       "name": "EDGL Karikasari 2019 - Mäetaguse",
       "latitude": 59.2258732819393,
@@ -1874,8 +1848,8 @@
       "longitude": 26.404129171022504,
       "county": "Tartu Maakond",
       "locality": "Elva",
-      "status": "active",
-      "endDate": null,
+      "status": "closed",
+      "endDate": "2026-10-25",
       "layouts": [
         {
           "id": "35861",
@@ -1984,7 +1958,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/26156",
-      "osmUrl": "https://www.openstreetmap.org/node/12561172388"
+      "osmUrl": null
     },
     {
       "id": "metrix:34475",
@@ -2470,7 +2444,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/28633",
-      "osmUrl": "https://www.openstreetmap.org/node/12745015291"
+      "osmUrl": null
     },
     {
       "id": "metrix:33358",
@@ -2862,7 +2836,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/34133",
-      "osmUrl": "https://www.openstreetmap.org/node/13180328089"
+      "osmUrl": null
     },
     {
       "id": "metrix:31205",
@@ -2981,7 +2955,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/23956",
-      "osmUrl": "https://www.openstreetmap.org/node/10589743740"
+      "osmUrl": null
     },
     {
       "id": "metrix:21268",
@@ -3366,6 +3340,11 @@
           "endedAt": "2026-08-03"
         },
         {
+          "id": "48999",
+          "name": "ACE RACE by DG ACADEMY",
+          "endedAt": "2026-12-31"
+        },
+        {
           "id": "47607",
           "name": "B",
           "endedAt": "2026-08-03"
@@ -3592,7 +3571,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/8658",
-      "osmUrl": "https://www.openstreetmap.org/node/12738667469"
+      "osmUrl": null
     },
     {
       "id": "metrix:26265",
@@ -3871,7 +3850,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/42934",
-      "osmUrl": "https://www.openstreetmap.org/node/10726020492"
+      "osmUrl": null
     },
     {
       "id": "metrix:10270",
@@ -4232,7 +4211,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/34411",
-      "osmUrl": "https://www.openstreetmap.org/node/12748083341"
+      "osmUrl": null
     },
     {
       "id": "metrix:17013",
@@ -4266,7 +4245,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/18679",
-      "osmUrl": "https://www.openstreetmap.org/node/12330924804"
+      "osmUrl": null
     },
     {
       "id": "metrix:17988",
@@ -4527,7 +4506,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/46432",
-      "osmUrl": "https://www.openstreetmap.org/node/5082490322"
+      "osmUrl": null
     },
     {
       "id": "metrix:8822",
@@ -4809,7 +4788,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/17110",
-      "osmUrl": "https://www.openstreetmap.org/node/12331084034"
+      "osmUrl": null
     },
     {
       "id": "metrix:35955",
@@ -5332,7 +5311,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/4476",
-      "osmUrl": "https://www.openstreetmap.org/node/12748083342"
+      "osmUrl": null
     },
     {
       "id": "metrix:22307",
@@ -5424,7 +5403,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/23583",
-      "osmUrl": "https://www.openstreetmap.org/node/12471297221"
+      "osmUrl": null
     },
     {
       "id": "metrix:38905",
@@ -5910,7 +5889,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/158",
-      "osmUrl": "https://www.openstreetmap.org/node/12738667467"
+      "osmUrl": null
     },
     {
       "id": "metrix:255",
@@ -6041,7 +6020,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/10508",
-      "osmUrl": "https://www.openstreetmap.org/node/12748083337"
+      "osmUrl": null
     },
     {
       "id": "metrix:31354",
@@ -6208,7 +6187,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/24259",
-      "osmUrl": "https://www.openstreetmap.org/node/13190653891"
+      "osmUrl": null
     },
     {
       "id": "metrix:33274",
@@ -6275,7 +6254,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/1185",
-      "osmUrl": "https://www.openstreetmap.org/node/12741243461"
+      "osmUrl": null
     },
     {
       "id": "metrix:19841",
@@ -6554,7 +6533,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/8937",
-      "osmUrl": "https://www.openstreetmap.org/node/12759333967"
+      "osmUrl": null
     },
     {
       "id": "metrix:16424",
@@ -6655,7 +6634,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/4320",
-      "osmUrl": "https://www.openstreetmap.org/way/1349581146"
+      "osmUrl": null
     },
     {
       "id": "metrix:4330",
@@ -6813,7 +6792,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/23277",
-      "osmUrl": "https://www.openstreetmap.org/node/10556643296"
+      "osmUrl": null
     },
     {
       "id": "metrix:12732",
@@ -7033,7 +7012,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/7076",
-      "osmUrl": "https://www.openstreetmap.org/node/12741243458"
+      "osmUrl": null
     },
     {
       "id": "metrix:20466",
@@ -7223,7 +7202,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/544",
-      "osmUrl": "https://www.openstreetmap.org/node/5437528251"
+      "osmUrl": null
     },
     {
       "id": "metrix:17021",
@@ -7314,7 +7293,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/5669",
-      "osmUrl": "https://www.openstreetmap.org/way/1280195510"
+      "osmUrl": null
     },
     {
       "id": "metrix:48136",
@@ -7429,7 +7408,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/16898",
-      "osmUrl": "https://www.openstreetmap.org/node/10777424345"
+      "osmUrl": null
     },
     {
       "id": "metrix:31702",
@@ -7496,7 +7475,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/4380",
-      "osmUrl": "https://www.openstreetmap.org/node/12745015287"
+      "osmUrl": null
     },
     {
       "id": "metrix:38850",
@@ -7764,7 +7743,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/32824",
-      "osmUrl": "https://www.openstreetmap.org/node/11244148225"
+      "osmUrl": null
     },
     {
       "id": "metrix:22718",
@@ -8169,7 +8148,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/62",
-      "osmUrl": "https://www.openstreetmap.org/node/12738667472"
+      "osmUrl": null
     },
     {
       "id": "metrix:40483",
@@ -8386,7 +8365,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/22487",
-      "osmUrl": "https://www.openstreetmap.org/node/12574231227"
+      "osmUrl": null
     },
     {
       "id": "metrix:39149",
@@ -8811,7 +8790,7 @@
         {
           "id": "48902",
           "name": "laulukas 2026 osc",
-          "endedAt": "2026-10-23"
+          "endedAt": "2026-11-06"
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/48902",
@@ -9640,7 +9619,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/42492",
-      "osmUrl": "https://www.openstreetmap.org/node/12741243457"
+      "osmUrl": null
     },
     {
       "id": "metrix:42496",
@@ -9736,7 +9715,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/1237",
-      "osmUrl": "https://www.openstreetmap.org/relation/17638406"
+      "osmUrl": null
     },
     {
       "id": "metrix:10811",
@@ -9775,7 +9754,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/40",
-      "osmUrl": "https://www.openstreetmap.org/node/12744073461"
+      "osmUrl": null
     },
     {
       "id": "metrix:4795",
@@ -9868,6 +9847,25 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/39677",
+      "osmUrl": null
+    },
+    {
+      "id": "metrix:49041",
+      "name": "Mammaste Talvekarikas 2026",
+      "latitude": 58.07111245655835,
+      "longitude": 27.063069150620095,
+      "county": null,
+      "locality": null,
+      "status": "closed",
+      "endDate": "2026-10-24",
+      "layouts": [
+        {
+          "id": "49041",
+          "name": "Mammaste Talvekarikas 2026",
+          "endedAt": "2026-10-24"
+        }
+      ],
+      "metrixUrl": "https://discgolfmetrix.com/course/49041",
       "osmUrl": null
     },
     {
@@ -10250,19 +10248,6 @@
       "osmUrl": null
     },
     {
-      "id": "osm:node/11086060088",
-      "name": "Metsjärve discgolf",
-      "latitude": 58.0091882,
-      "longitude": 26.9409117,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/11086060088"
-    },
-    {
       "id": "metrix:14904",
       "name": "Mini Jaani100",
       "latitude": 59.02030117672328,
@@ -10432,7 +10417,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/8397",
-      "osmUrl": "https://www.openstreetmap.org/node/12738841886"
+      "osmUrl": null
     },
     {
       "id": "metrix:8553",
@@ -10634,7 +10619,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/5433",
-      "osmUrl": "https://www.openstreetmap.org/way/816505948"
+      "osmUrl": null
     },
     {
       "id": "metrix:12482",
@@ -10707,19 +10692,6 @@
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/30576",
       "osmUrl": null
-    },
-    {
-      "id": "osm:node/10589566088",
-      "name": "Mõisaküla discgolfi park",
-      "latitude": 58.0932465,
-      "longitude": 25.1691386,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/10589566088"
     },
     {
       "id": "metrix:48234",
@@ -11020,7 +10992,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/8069",
-      "osmUrl": "https://www.openstreetmap.org/node/12741243462"
+      "osmUrl": null
     },
     {
       "id": "metrix:9757",
@@ -11092,7 +11064,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/1037",
-      "osmUrl": "https://www.openstreetmap.org/node/4680000933"
+      "osmUrl": null
     },
     {
       "id": "metrix:37532",
@@ -11428,7 +11400,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/30391",
-      "osmUrl": "https://www.openstreetmap.org/way/1122163318"
+      "osmUrl": null
     },
     {
       "id": "metrix:29123",
@@ -11999,19 +11971,6 @@
       "osmUrl": null
     },
     {
-      "id": "osm:node/10570911095",
-      "name": "Nõo discgolfi park",
-      "latitude": 58.2724384,
-      "longitude": 26.5219856,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/10570911095"
-    },
-    {
       "id": "metrix:16512",
       "name": "Nõo kool",
       "latitude": 58.279936431648906,
@@ -12153,7 +12112,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/31011",
-      "osmUrl": "https://www.openstreetmap.org/node/12744073462"
+      "osmUrl": null
     },
     {
       "id": "metrix:36374",
@@ -12424,7 +12383,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/4623",
-      "osmUrl": "https://www.openstreetmap.org/node/5675331876"
+      "osmUrl": null
     },
     {
       "id": "metrix:17039",
@@ -12631,7 +12590,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/40203",
-      "osmUrl": "https://www.openstreetmap.org/node/12745015290"
+      "osmUrl": null
     },
     {
       "id": "metrix:21471",
@@ -13033,7 +12992,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/39",
-      "osmUrl": "https://www.openstreetmap.org/node/5453954297"
+      "osmUrl": null
     },
     {
       "id": "metrix:9156",
@@ -13769,7 +13728,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/521",
-      "osmUrl": "https://www.openstreetmap.org/node/10894495966"
+      "osmUrl": null
     },
     {
       "id": "metrix:11369",
@@ -13832,7 +13791,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/36844",
-      "osmUrl": "https://www.openstreetmap.org/node/12745015289"
+      "osmUrl": null
     },
     {
       "id": "metrix:18490",
@@ -14054,7 +14013,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/6837",
-      "osmUrl": "https://www.openstreetmap.org/node/12759333961"
+      "osmUrl": null
     },
     {
       "id": "metrix:20810",
@@ -14175,7 +14134,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/25178",
-      "osmUrl": "https://www.openstreetmap.org/node/12744073460"
+      "osmUrl": null
     },
     {
       "id": "metrix:17042",
@@ -14325,7 +14284,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/22584",
-      "osmUrl": "https://www.openstreetmap.org/node/12738841887"
+      "osmUrl": null
     },
     {
       "id": "metrix:27559",
@@ -14646,7 +14605,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/21957",
-      "osmUrl": "https://www.openstreetmap.org/node/12737060634"
+      "osmUrl": null
     },
     {
       "id": "metrix:23818",
@@ -14806,7 +14765,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/19769",
-      "osmUrl": "https://www.openstreetmap.org/node/13004386028"
+      "osmUrl": null
     },
     {
       "id": "metrix:43819",
@@ -15140,7 +15099,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/1423",
-      "osmUrl": "https://www.openstreetmap.org/node/3687226729"
+      "osmUrl": null
     },
     {
       "id": "metrix:14006",
@@ -15219,7 +15178,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/42500",
-      "osmUrl": "https://www.openstreetmap.org/node/12741243459"
+      "osmUrl": null
     },
     {
       "id": "metrix:41288",
@@ -15568,7 +15527,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/32419",
-      "osmUrl": "https://www.openstreetmap.org/node/12759333960"
+      "osmUrl": null
     },
     {
       "id": "metrix:45666",
@@ -15963,7 +15922,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/33783",
-      "osmUrl": "https://www.openstreetmap.org/node/13015337907"
+      "osmUrl": null
     },
     {
       "id": "metrix:38768",
@@ -16016,7 +15975,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/20315",
-      "osmUrl": "https://www.openstreetmap.org/node/12738667470"
+      "osmUrl": null
     },
     {
       "id": "metrix:23735",
@@ -16290,7 +16249,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/864",
-      "osmUrl": "https://www.openstreetmap.org/node/12737060635"
+      "osmUrl": null
     },
     {
       "id": "metrix:14616",
@@ -16539,7 +16498,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/5528",
-      "osmUrl": "https://www.openstreetmap.org/node/13015355279"
+      "osmUrl": null
     },
     {
       "id": "metrix:31504",
@@ -17497,7 +17456,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/5663",
-      "osmUrl": "https://www.openstreetmap.org/node/12748083340"
+      "osmUrl": null
     },
     {
       "id": "metrix:17998",
@@ -17597,19 +17556,6 @@
       "osmUrl": null
     },
     {
-      "id": "osm:node/12759333968",
-      "name": "Tapa Männikumäe discgolfi park",
-      "latitude": 59.2585417,
-      "longitude": 25.938312,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/12759333968"
-    },
-    {
       "id": "metrix:23251",
       "name": "Tapa Open 2021",
       "latitude": 59.25920714515351,
@@ -17640,7 +17586,17 @@
       "layouts": [
         {
           "id": "46708",
-          "name": "Tartu Dendro discgolfi park 2026 05.08.2026",
+          "name": "Tartu Dendro discgolfi park 2026",
+          "endedAt": null
+        },
+        {
+          "id": "49020",
+          "name": "Tartu Dendro LED/AM 2026 10korvi",
+          "endedAt": null
+        },
+        {
+          "id": "49021",
+          "name": "Tartu Dendro LED/AM 2026 2x10 korvi",
           "endedAt": null
         }
       ],
@@ -17668,13 +17624,13 @@
     },
     {
       "id": "metrix:23470",
-      "name": "Tartu Dendropark",
+      "name": "Tartu Dendropark &rarr; OB-dega",
       "latitude": 58.39047003735709,
       "longitude": 26.700391574259555,
       "county": "Tartu Maakond",
       "locality": "Tartu",
-      "status": "active",
-      "endDate": null,
+      "status": "closed",
+      "endDate": "2026-10-22",
       "layouts": [
         {
           "id": "23471",
@@ -17689,25 +17645,25 @@
         {
           "id": "38153",
           "name": "Tartu Dendropark 2023 - OB-dega",
-          "endedAt": null
+          "endedAt": "2026-10-22"
         },
         {
           "id": "34687",
           "name": "Tartu Dendropark 2023 - OB-deta",
-          "endedAt": null
+          "endedAt": "2026-10-22"
         },
         {
           "id": "41065",
           "name": "Tartu Dendropark 2024 - ERIREEGLITETA",
-          "endedAt": null
+          "endedAt": "2026-10-22"
         },
         {
           "id": "39937",
           "name": "Tartu Dendropark 2024 - OB-dega AJUTINE",
-          "endedAt": null
+          "endedAt": "2026-10-22"
         }
       ],
-      "metrixUrl": "https://discgolfmetrix.com/course/34687",
+      "metrixUrl": "https://discgolfmetrix.com/course/23471",
       "osmUrl": null
     },
     {
@@ -17727,25 +17683,6 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/17961",
-      "osmUrl": null
-    },
-    {
-      "id": "metrix:25991",
-      "name": "Tartu LED-i mäng 2x10 Roosi DG park",
-      "latitude": 58.39317478895356,
-      "longitude": 26.746742561854802,
-      "county": "Tartu Maakond",
-      "locality": "Tartu",
-      "status": "active",
-      "endDate": null,
-      "layouts": [
-        {
-          "id": "25991",
-          "name": "Tartu LED-i mäng 2x10 Roosi DG park",
-          "endedAt": null
-        }
-      ],
-      "metrixUrl": "https://discgolfmetrix.com/course/25991",
       "osmUrl": null
     },
     {
@@ -17898,6 +17835,11 @@
           "endedAt": "2026-03-12"
         },
         {
+          "id": "25991",
+          "name": "Tartu LED-i mäng 2x10 Roosi DG park",
+          "endedAt": null
+        },
+        {
           "id": "16921",
           "name": "Tartu Roosi DG",
           "endedAt": "2023-05-27"
@@ -17908,8 +17850,8 @@
           "endedAt": null
         }
       ],
-      "metrixUrl": "https://discgolfmetrix.com/course/47341",
-      "osmUrl": "https://www.openstreetmap.org/way/781613995"
+      "metrixUrl": "https://discgolfmetrix.com/course/25991",
+      "osmUrl": null
     },
     {
       "id": "metrix:17802",
@@ -18406,19 +18348,6 @@
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/42703",
       "osmUrl": null
-    },
-    {
-      "id": "osm:node/12738667471",
-      "name": "Terminal Oil Annikoru Discgolfipark",
-      "latitude": 58.2659349,
-      "longitude": 26.3088423,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/12738667471"
     },
     {
       "id": "metrix:39434",
@@ -19211,20 +19140,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/15733",
-      "osmUrl": "https://www.openstreetmap.org/node/10315042346"
-    },
-    {
-      "id": "osm:node/12737060633",
-      "name": "Tähtvere Dendro discgolfipark",
-      "latitude": 58.3905385,
-      "longitude": 26.7004773,
-      "county": null,
-      "locality": null,
-      "status": "unverified",
-      "endDate": null,
-      "layouts": [],
-      "metrixUrl": null,
-      "osmUrl": "https://www.openstreetmap.org/node/12737060633"
+      "osmUrl": null
     },
     {
       "id": "metrix:8249",
@@ -19474,7 +19390,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/4754",
-      "osmUrl": "https://www.openstreetmap.org/node/13081906411"
+      "osmUrl": null
     },
     {
       "id": "metrix:40230",
@@ -19823,7 +19739,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/5567",
-      "osmUrl": "https://www.openstreetmap.org/node/12738841888"
+      "osmUrl": null
     },
     {
       "id": "metrix:38845",
@@ -19968,7 +19884,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/30766",
-      "osmUrl": "https://www.openstreetmap.org/node/12504516054"
+      "osmUrl": null
     },
     {
       "id": "metrix:8668",
@@ -19987,7 +19903,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/8668",
-      "osmUrl": "https://www.openstreetmap.org/node/12946437287"
+      "osmUrl": null
     },
     {
       "id": "metrix:1347",
@@ -20055,7 +19971,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/438",
-      "osmUrl": "https://www.openstreetmap.org/node/12504568190"
+      "osmUrl": null
     },
     {
       "id": "metrix:17623",
@@ -20208,7 +20124,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/42550",
-      "osmUrl": "https://www.openstreetmap.org/node/10302857846"
+      "osmUrl": null
     },
     {
       "id": "metrix:48362",
@@ -20294,7 +20210,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/18336",
-      "osmUrl": "https://www.openstreetmap.org/node/10776058871"
+      "osmUrl": null
     },
     {
       "id": "metrix:1396",
@@ -20437,7 +20353,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/16332",
-      "osmUrl": "https://www.openstreetmap.org/node/8590614466"
+      "osmUrl": null
     },
     {
       "id": "metrix:22719",
@@ -20532,7 +20448,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/85",
-      "osmUrl": "https://www.openstreetmap.org/node/12744073464"
+      "osmUrl": null
     },
     {
       "id": "metrix:34103",
@@ -20610,7 +20526,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/34467",
-      "osmUrl": "https://www.openstreetmap.org/way/1079184262"
+      "osmUrl": null
     },
     {
       "id": "metrix:5764",
@@ -20882,7 +20798,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/27419",
-      "osmUrl": "https://www.openstreetmap.org/node/10981129287"
+      "osmUrl": null
     },
     {
       "id": "metrix:31198",
@@ -21105,7 +21021,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/46959",
-      "osmUrl": "https://www.openstreetmap.org/node/12738667466"
+      "osmUrl": null
     },
     {
       "id": "metrix:36547",
@@ -21362,7 +21278,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/5739",
-      "osmUrl": "https://www.openstreetmap.org/node/12741243460"
+      "osmUrl": null
     },
     {
       "id": "metrix:28362",
@@ -21664,7 +21580,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/19167",
-      "osmUrl": "https://www.openstreetmap.org/node/10550781736"
+      "osmUrl": null
     },
     {
       "id": "metrix:39264",
@@ -21963,7 +21879,7 @@
         }
       ],
       "metrixUrl": "https://discgolfmetrix.com/course/7078",
-      "osmUrl": "https://www.openstreetmap.org/node/12748083338"
+      "osmUrl": null
     },
     {
       "id": "metrix:41275",
